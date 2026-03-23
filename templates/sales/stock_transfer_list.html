@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Stock Transfers — NOVMAN AUTO SPARE PARTS{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --st-card:#ffffff;
+    --st-text:#0f172a;
+    --st-muted:#64748b;
+    --st-line:#e2e8f0;
+    --st-line-soft:#eef2f7;
+    --st-primary:#2563eb;
+    --st-primary-soft:rgba(37,99,235,.08);
+    --st-success:#16a34a;
+    --st-danger:#dc2626;
+    --st-danger-soft:rgba(220,38,38,.06);
+    --st-danger-soft-2:rgba(220,38,38,.10);
+    --st-dark:#334155;
+    --st-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .st-wrap{
+    max-width:1140px;
+    margin:1rem auto 1.4rem;
+    padding:0 .8rem;
+    color:var(--st-text);
+  }
+
+  .st-hero,
+  .st-filter-card,
+  .st-table-card{
+    background:var(--st-card);
+    border:1px solid var(--st-line);
+    border-radius:18px;
+    box-shadow:var(--st-shadow);
+  }
+
+  .st-hero{
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    padding:.95rem 1rem .9rem;
+    margin-bottom:.9rem;
+  }
+
+  .st-hero-top,
+  .st-table-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.75rem;
+    flex-wrap:wrap;
+  }
+
+  .st-title{
+    margin:0;
+    font-size:1rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .st-sub{
+    font-size:.74rem;
+    color:var(--st-muted);
+    margin:.2rem 0 0;
+    line-height:1.45;
+  }
+
+  .st-btn,
+  .st-btn-light{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.42rem;
+    height:38px;
+    padding:0 .9rem;
+    border-radius:11px;
+    text-decoration:none;
+    font-size:.76rem;
+    font-weight:700;
+    white-space:nowrap;
+    transition:.18s ease;
+  }
+
+  .st-btn{
+    border:none;
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+  }
+
+  .st-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .st-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--st-line);
+  }
+
+  .st-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .st-filter-card{
+    margin-bottom:.9rem;
+    overflow:hidden;
+  }
+
+  .st-filter-body{
+    padding:.95rem;
+  }
+
+  .st-field label{
+    display:block;
+    margin-bottom:.34rem;
+    font-size:.69rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .st-control{
+    width:100%;
+    height:38px;
+    border-radius:11px;
+    border:1px solid var(--st-line);
+    background:#fff;
+    color:var(--st-text);
+    font-size:.77rem;
+    box-shadow:none !important;
+  }
+
+  .st-control:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .st-table-card{
+    overflow:hidden;
+  }
+
+  .st-table-head{
+    padding:.9rem 1rem;
+    border-bottom:1px solid var(--st-line-soft);
+  }
+
+  .st-table-title{
+    margin:0;
+    font-size:.82rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:.42rem;
+  }
+
+  .st-table-note{
+    display:inline-flex;
+    align-items:center;
+    gap:.34rem;
+    padding:.28rem .55rem;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#475569;
+    font-size:.71rem;
+    font-weight:700;
+    border:1px solid var(--st-line);
+  }
+
+  .st-table-wrap{
+    overflow:auto;
+  }
+
+  .st-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    min-width:980px;
+    margin:0;
+  }
+
+  .st-table thead th{
+    background:linear-gradient(180deg, #f8fbff, #f1f6ff);
+    color:#475569;
+    padding:.75rem .85rem;
+    font-size:.69rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    white-space:nowrap;
+    border-bottom:1px solid var(--st-line);
+  }
+
+  .st-table tbody td{
+    padding:.76rem .85rem;
+    border-top:1px solid var(--st-line-soft);
+    font-size:.77rem;
+    color:var(--st-text);
+    vertical-align:middle;
+  }
+
+  .st-table tbody tr:nth-child(even){
+    background:#fbfdff;
+  }
+
+  .st-table tbody tr:hover{
+    background:#f8fafc;
+  }
+
+  .st-id{
+    font-weight:800;
+  }
+
+  .st-route{
+    font-weight:700;
+    font-size:.8rem;
+  }
+
+  .st-meta{
+    font-size:.68rem;
+    color:var(--st-muted);
+    margin-top:.14rem;
+  }
+
+  .st-count{
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .st-date{
+    font-size:.73rem;
+    color:#475569;
+    line-height:1.38;
+  }
+
+  .st-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:.3rem .56rem;
+    border-radius:999px;
+    font-size:.69rem;
+    font-weight:800;
+    border:1px solid transparent;
+    text-transform:uppercase;
+  }
+
+  .st-badge.draft{
+    background:rgba(100,116,139,.10);
+    color:#475569;
+    border-color:rgba(100,116,139,.14);
+  }
+
+  .st-badge.posted{
+    background:rgba(22,163,74,.10);
+    color:var(--st-success);
+    border-color:rgba(22,163,74,.14);
+  }
+
+  .st-badge.cancelled{
+    background:rgba(51,65,85,.10);
+    color:var(--st-dark);
+    border-color:rgba(51,65,85,.14);
+  }
+
+  .st-actions{
+    display:inline-flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:.42rem;
+    flex-wrap:wrap;
+  }
+
+  .st-action{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.38rem;
+    height:32px;
+    padding:0 .78rem;
+    border-radius:10px;
+    text-decoration:none;
+    font-size:.72rem;
+    font-weight:800;
+    color:var(--st-primary);
+    background:rgba(37,99,235,.06);
+    border:1px solid rgba(37,99,235,.12);
+    transition:.18s ease;
+  }
+
+  .st-action:hover{
+    color:#1d4ed8;
+    background:rgba(37,99,235,.10);
+  }
+
+  .st-action-danger{
+    color:var(--st-danger);
+    background:var(--st-danger-soft);
+    border:1px solid rgba(220,38,38,.14);
+  }
+
+  .st-action-danger:hover{
+    color:#b91c1c;
+    background:var(--st-danger-soft-2);
+  }
+
+  .st-empty{
+    background:#fff;
+    border:1px dashed var(--st-line);
+    border-radius:15px;
+    padding:1.5rem .9rem;
+    text-align:center;
+    color:var(--st-muted);
+    margin:.9rem;
+  }
+
+  .st-empty i{
+    font-size:1.05rem;
+    color:#94a3b8;
+    margin-bottom:.4rem;
+  }
+
+  .st-empty h6{
+    font-size:.84rem;
+    font-weight:800;
+    color:var(--st-text);
+    margin-bottom:.12rem;
+  }
+
+  .st-empty p{
+    font-size:.73rem;
+    margin:0;
+  }
+
+  @media (max-width:768px){
+    .st-wrap{
+      padding:0 .65rem;
+    }
+
+    .st-hero,
+    .st-filter-body{
+      padding:.85rem;
+    }
+
+    .st-table-head{
+      padding:.85rem;
+    }
+
+    .st-btn,
+    .st-btn-light{
+      width:100%;
+    }
+
+    .st-actions{
+      width:100%;
+    }
+
+    .st-action{
+      flex:1 1 auto;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="st-wrap">
+
+  <div class="st-hero">
+    <div class="st-hero-top">
+      <div>
+        <h2 class="st-title">
+          <i class="fa-solid fa-arrow-right-arrow-left text-primary"></i>
+          Stock Transfers
+        </h2>
+        <div class="st-sub">
+          Track transfers between branches with quick access to view and delete actions.
+        </div>
+      </div>
+
+      <a href="{% url 'sales:stock_transfer_create' %}" class="st-btn">
+        <i class="fa-solid fa-plus"></i>
+        New Transfer
+      </a>
+    </div>
+  </div>
+
+  <div class="st-filter-card">
+    <div class="st-filter-body">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-12 col-md-5">
+          <div class="st-field">
+            <label>Branch (From or To)</label>
+            <select class="form-select st-control" name="branch">
+              <option value="">All</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="st-field">
+            <label>Status</label>
+            <select class="form-select st-control" name="status">
+              <option value="">All</option>
+              <option value="draft" {% if selected_status == "draft" %}selected{% endif %}>Draft</option>
+              <option value="posted" {% if selected_status == "posted" %}selected{% endif %}>Posted</option>
+              <option value="cancelled" {% if selected_status == "cancelled" %}selected{% endif %}>Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3 d-flex gap-2">
+          <button class="st-btn w-100">
+            <i class="fa-solid fa-filter"></i>
+            Filter
+          </button>
+          <a class="st-btn-light w-100" href="{% url 'sales:stock_transfer_list' %}">
+            <i class="fa-solid fa-rotate-left"></i>
+            Reset
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="st-table-card">
+    <div class="st-table-head">
+      <h3 class="st-table-title">
+        <i class="fa-solid fa-list"></i>
+        Transfer Records
+      </h3>
+      <div class="st-table-note">
+        <i class="fa-solid fa-clock"></i>
+        Latest history
+      </div>
+    </div>
+
+    {% if transfers %}
+      <div class="st-table-wrap">
+        <table class="st-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>From → To</th>
+              <th>Status</th>
+              <th class="text-end">Items</th>
+              <th>Created</th>
+              <th>Posted</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transfers %}
+            <tr>
+              <td class="st-id">#{{ t.id }}</td>
+
+              <td>
+                <div class="st-route">{{ t.from_branch.name }} → {{ t.to_branch.name }}</div>
+                <div class="st-meta">By: {{ t.created_by.username }}</div>
+              </td>
+
+              <td>
+                <span class="st-badge {{ t.status }}">
+                  {{ t.status }}
+                </span>
+              </td>
+
+              <td class="text-end st-count">{{ t.items_total_qty|intcomma }}</td>
+
+              <td>
+                <div class="st-date">{{ t.created_at|date:"Y-m-d H:i" }}</div>
+              </td>
+
+              <td>
+                {% if t.posted_at %}
+                  <div class="st-date">
+                    {{ t.posted_at|date:"Y-m-d H:i" }}<br>
+                    <span class="st-meta">
+                      {% if t.posted_by %}{{ t.posted_by.username }}{% else %}—{% endif %}
+                    </span>
+                  </div>
+                {% else %}
+                  <span class="st-meta">—</span>
+                {% endif %}
+              </td>
+
+              <td class="text-end">
+                <div class="st-actions">
+                  <a href="{% url 'sales:stock_transfer_detail' t.id %}" class="st-action">
+                    <i class="fa-solid fa-eye"></i>
+                    View
+                  </a>
+
+                  {% if t.status == "draft" or t.status == "posted" %}
+                    <a href="{% url 'sales:stock_transfer_delete' t.id %}" class="st-action st-action-danger">
+                      <i class="fa-solid fa-trash"></i>
+                      Delete
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="st-empty">
+        <i class="fa-regular fa-face-frown"></i>
+        <h6>No transfers found</h6>
+        <p>Try another branch or status filter.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

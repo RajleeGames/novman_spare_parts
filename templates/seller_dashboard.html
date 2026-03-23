@@ -1,0 +1,991 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Seller Dashboard — Kilasi Investment{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --sd-bg:#f8fafc;
+    --sd-card:#ffffff;
+    --sd-line:#e2e8f0;
+    --sd-line-soft:#eef2f7;
+    --sd-text:#0f172a;
+    --sd-muted:#64748b;
+    --sd-primary:#2563eb;
+    --sd-primary-soft:rgba(37,99,235,.08);
+    --sd-success:#16a34a;
+    --sd-danger:#dc2626;
+    --sd-warning:#f59e0b;
+    --sd-info:#0891b2;
+    --sd-purple:#7c3aed;
+    --sd-shadow:0 10px 30px rgba(15,23,42,.06);
+    --sd-radius:18px;
+  }
+
+  .sd-wrap{
+    max-width:1400px;
+    margin:1rem auto 1.5rem;
+    padding:0 .85rem;
+    color:var(--sd-text);
+  }
+
+  .sd-hero{
+    border:1px solid var(--sd-line);
+    border-radius:22px;
+    box-shadow:var(--sd-shadow);
+    padding:1rem;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    margin-bottom:1rem;
+  }
+
+  .sd-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.9rem;
+  }
+
+  .sd-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    margin-bottom:.55rem;
+  }
+
+  .sd-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.38rem;
+    padding:.34rem .62rem;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid var(--sd-line);
+    color:#475569;
+    font-size:.72rem;
+    font-weight:700;
+  }
+
+  .sd-pill.primary{
+    background:var(--sd-primary-soft);
+    color:var(--sd-primary);
+    border-color:rgba(37,99,235,.12);
+  }
+
+  .sd-title{
+    margin:0;
+    font-size:1.02rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .sd-sub{
+    margin-top:.25rem;
+    color:var(--sd-muted);
+    font-size:.74rem;
+  }
+
+  .sd-top-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.55rem;
+  }
+
+  .sd-link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    height:36px;
+    padding:0 .82rem;
+    border-radius:12px;
+    border:1px solid var(--sd-line);
+    background:#fff;
+    color:#334155;
+    text-decoration:none;
+    font-size:.74rem;
+    font-weight:700;
+  }
+
+  .sd-link-btn:hover{
+    color:var(--sd-text);
+    border-color:#cbd5e1;
+  }
+
+  .sd-picker-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:.75rem;
+    margin-top:.95rem;
+  }
+
+  @media(min-width:992px){
+    .sd-picker-grid{
+      grid-template-columns:1fr 1fr 1fr;
+    }
+  }
+
+  .sd-field label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.71rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sd-input-wrap{
+    position:relative;
+  }
+
+  .sd-input-icon{
+    position:absolute;
+    top:50%;
+    left:.78rem;
+    transform:translateY(-50%);
+    color:#94a3b8;
+    font-size:.8rem;
+    pointer-events:none;
+  }
+
+  .sd-control{
+    width:100%;
+    height:40px;
+    border-radius:12px;
+    border:1px solid var(--sd-line);
+    background:#fff;
+    color:var(--sd-text);
+    font-size:.78rem;
+    box-shadow:none !important;
+  }
+
+  .sd-control.ps-icon{
+    padding-left:2.2rem;
+  }
+
+  .sd-control:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  #searchResults{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:#fff;
+    border:1px solid var(--sd-line);
+    border-top:none;
+    max-height:260px;
+    overflow-y:auto;
+    z-index:1050;
+    border-bottom-left-radius:12px;
+    border-bottom-right-radius:12px;
+    box-shadow:0 12px 30px rgba(15,23,42,.10);
+  }
+
+  #searchResults li{
+    padding:.62rem .8rem;
+    cursor:pointer;
+    border-top:1px solid var(--sd-line-soft);
+    font-size:.78rem;
+  }
+
+  #searchResults li:hover{
+    background:#f8fafc;
+  }
+
+  .sd-card{
+    background:var(--sd-card);
+    border:1px solid var(--sd-line);
+    border-radius:20px;
+    box-shadow:var(--sd-shadow);
+    overflow:hidden;
+    height:100%;
+  }
+
+  .sd-card-h{
+    padding:.9rem 1rem;
+    border-bottom:1px solid var(--sd-line-soft);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.65rem;
+    background:#fff;
+  }
+
+  .sd-card-title{
+    margin:0;
+    font-size:.86rem;
+    font-weight:800;
+    color:var(--sd-text);
+    display:flex;
+    align-items:center;
+    gap:.48rem;
+  }
+
+  .sd-card-sub{
+    font-size:.7rem;
+    color:var(--sd-muted);
+  }
+
+  .sd-card-b{
+    padding:1rem;
+  }
+
+  .sd-empty{
+    color:var(--sd-muted);
+    font-size:.77rem;
+  }
+
+  .sd-empty small{
+    display:block;
+    margin-top:.35rem;
+    font-size:.72rem;
+  }
+
+  .sd-sel-name{
+    font-weight:800;
+    color:var(--sd-text);
+    font-size:.92rem;
+    line-height:1.3;
+  }
+
+  .sd-sel-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    margin-top:.6rem;
+  }
+
+  .sd-sel-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.32rem .58rem;
+    border-radius:999px;
+    border:1px solid var(--sd-line);
+    background:#f8fafc;
+    color:#475569;
+    font-size:.72rem;
+    font-weight:700;
+  }
+
+  .sd-qtybar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.6rem;
+    align-items:center;
+    width:100%;
+    max-width:420px;
+    margin-top:.85rem;
+  }
+
+  .sd-btn{
+    height:40px;
+    border:none;
+    border-radius:12px;
+    padding:0 .9rem;
+    font-size:.76rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    white-space:nowrap;
+  }
+
+  .sd-btn-primary{
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+  }
+
+  .sd-btn-success{
+    background:linear-gradient(135deg, #16a34a, #22c55e);
+    color:#fff;
+  }
+
+  .sd-btn-outline-danger{
+    background:#fff;
+    color:var(--sd-danger);
+    border:1px solid rgba(220,38,38,.16);
+  }
+
+  .sd-btn:hover{
+    transform:translateY(-1px);
+  }
+
+  .sd-help{
+    margin-top:.55rem;
+    color:var(--sd-muted);
+    font-size:.72rem;
+  }
+
+  .sd-table{
+    margin:0;
+  }
+
+  .sd-table thead th{
+    background:linear-gradient(180deg, #f8fbff, #f1f6ff);
+    color:#475569;
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:1px solid var(--sd-line);
+    padding:.78rem .8rem;
+    white-space:nowrap;
+  }
+
+  .sd-table tbody td{
+    padding:.78rem .8rem;
+    vertical-align:middle;
+    border-top:1px solid var(--sd-line-soft);
+    font-size:.77rem;
+    color:var(--sd-text);
+  }
+
+  .sd-table tbody tr:hover{
+    background:#fbfdff;
+  }
+
+  .sd-prod-name{
+    font-weight:700;
+    color:var(--sd-text);
+    font-size:.79rem;
+    line-height:1.25;
+  }
+
+  .sd-prod-sub{
+    color:var(--sd-muted);
+    font-size:.69rem;
+    margin-top:.15rem;
+  }
+
+  .sd-money{
+    font-variant-numeric:tabular-nums;
+    font-weight:700;
+  }
+
+  .sd-cart-total{
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+    font-size:.8rem;
+  }
+
+  .sd-inline-input{
+    height:38px;
+    border-radius:11px;
+    border:1px solid var(--sd-line);
+    font-size:.76rem;
+    box-shadow:none !important;
+  }
+
+  .sd-inline-input:focus{
+    border-color:rgba(37,99,235,.35);
+    box-shadow:0 0 0 .16rem rgba(37,99,235,.10) !important;
+  }
+
+  .sd-disc-wrap{
+    position:relative;
+    min-width:145px;
+  }
+
+  .sd-disc-icon{
+    position:absolute;
+    left:.7rem;
+    top:50%;
+    transform:translateY(-50%);
+    color:#94a3b8;
+    font-size:.78rem;
+  }
+
+  .sd-disc-input{
+    padding-left:2rem;
+  }
+
+  .sd-disc-help{
+    display:block;
+    margin-top:.22rem;
+    font-size:.66rem;
+    color:var(--sd-muted);
+    line-height:1.25;
+  }
+
+  .sd-submit-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+  }
+
+  /* === NEW: payment + customer on one row, submit button moved below === */
+  .sd-submit-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.6rem;
+    align-items:start;
+  }
+
+  /* submit action row (button sits below the two columns) */
+  .sd-submit-action{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    margin-top:0.2rem;
+  }
+
+  /* label appearance kept small (we previously hid labels in an earlier edit;
+     keep placeholders for clarity so users can fill inputs). */
+  .sd-submit-label{
+    display:block;
+    margin-bottom:.3rem;
+    font-size:.70rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sd-submit-help{
+    font-size:.69rem;
+    color:var(--sd-muted);
+    margin-top:.3rem;
+  }
+
+  .sd-note{
+    font-size:.69rem;
+    color:var(--sd-muted);
+  }
+
+  /* Payment badge compact — keep only icon visible (text hidden via zero font-size)
+     but ensure placeholder icon shows */
+  .sd-payment-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.32rem;
+    margin-top:.3rem;
+    padding:.22rem .46rem;
+    border-radius:12px;
+    font-size:.67rem;
+    font-weight:700;
+    border:1px solid var(--sd-line);
+    background:#f8fafc;
+    color:#475569;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+    line-height:1;
+    border-width:1px;
+  }
+
+  /* hide paymentBadge text by making font-size 0 but keep icon visible */
+  .sd-payment-badge { font-size:0; }
+  .sd-payment-badge i{ font-size:15px; color:var(--sd-muted); }
+
+  /* smaller select and inputs for compact layout */
+  #paymentMethod.sd-control,
+  #paymentMethod.form-select{
+    height:36px;
+    font-size:.76rem;
+    padding:.28rem .6rem;
+    border-radius:10px;
+  }
+
+  #customerFields{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.45rem;
+    align-items:center;
+  }
+
+  #customerFields input.sd-control{
+    height:36px;
+    font-size:.75rem;
+    padding:.28rem .6rem;
+    border-radius:10px;
+  }
+
+  /* submit button - moved below: keep it visible and easy to click */
+  .sd-submit-action .sd-btn.sd-btn-success{
+    height:40px;
+    padding:0 1rem;
+    font-size:.9rem;
+    border-radius:10px;
+    min-width:160px;
+  }
+
+  /* small screens: stack everything */
+  @media(max-width:991px){
+    .sd-submit-grid{ grid-template-columns:1fr; }
+    #customerFields{ grid-template-columns:1fr; }
+    .sd-submit-action{ justify-content:flex-start; }
+    .sd-submit-action .sd-btn.sd-btn-success{ min-width:120px; width:100%; }
+  }
+
+  /* Slightly reduce vertical padding inside card body so area looks denser */
+  .sd-card-b{ padding:.8rem; }
+
+  /* Reduce icon sizes inside badges so text fits nicely */
+  .sd-sel-badge i, .sd-pill i{ font-size:.82rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sd-wrap">
+
+  <div class="sd-hero mb-3">
+    <div class="sd-top">
+      <div>
+        <div class="sd-badges">
+          <span class="sd-pill primary"><i class="fa-solid fa-store"></i> POS Seller</span>
+          {% if branch %}
+            <span class="sd-pill"><i class="fa-solid fa-building"></i> {{ branch.name }}</span>
+          {% endif %}
+        </div>
+
+        <h2 class="sd-title">
+          <i class="fa-solid fa-cart-shopping text-primary"></i>
+          Seller Dashboard
+        </h2>
+
+        <div class="sd-sub">
+          Search, scan, add items, apply discount per item, then submit cash, bank, EBT or debt with optional customer details.
+        </div>
+      </div>
+
+      <div class="sd-top-actions">
+        <a class="sd-link-btn" href="{% url 'sales:kilasi_sales_history' %}">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          History
+        </a>
+        <a class="sd-link-btn" href="{% url 'sales:outstanding_debts' %}">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+          Debts
+        </a>
+      </div>
+    </div>
+
+    <div class="sd-picker-grid">
+      <div class="sd-field">
+        <label for="categoryFilter">Category</label>
+        <div class="sd-input-wrap">
+          <i class="fa-solid fa-layer-group sd-input-icon"></i>
+          <select id="categoryFilter" class="form-select sd-control ps-icon">
+            <option value="">All Categories</option>
+            {% for id,name in categories %}
+              <option value="{{ id }}" {% if selected_cat and selected_cat|stringformat:"s" == id|stringformat:"s" %}selected{% endif %}>
+                {{ name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="sd-field position-relative">
+        <label for="textSearch">Search Products</label>
+        <div class="sd-input-wrap">
+          <i class="fa-solid fa-magnifying-glass sd-input-icon"></i>
+          <input type="text" id="textSearch" class="form-control sd-control ps-icon"
+                 value="{{ search_q|default:'' }}"
+                 placeholder="Type product name..."
+                 autocomplete="off">
+        </div>
+        <ul id="searchResults" class="list-unstyled d-none mb-0"></ul>
+      </div>
+
+      <div class="sd-field">
+        <label for="barcodeInput">Scan Barcode</label>
+        <div class="sd-input-wrap">
+          <i class="fa-solid fa-barcode sd-input-icon"></i>
+          <input type="text" id="barcodeInput" class="form-control sd-control ps-icon"
+                 placeholder="Scan then press Enter..."
+                 autocomplete="off">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row gy-3">
+    <div class="col-lg-6">
+      <div class="sd-card h-100">
+        <div class="sd-card-h">
+          <h3 class="sd-card-title">
+            <i class="fa-solid fa-cube"></i>
+            Selected Product
+          </h3>
+          <div class="sd-card-sub d-none d-md-block">Quick add to cart</div>
+        </div>
+
+        <div class="sd-card-b">
+          <div id="selectedDetails" class="sd-empty">
+            Pick a product by searching or scanning.
+            <small>Product info and add-to-cart controls will appear here.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="sd-card h-100">
+        <div class="sd-card-h">
+          <h3 class="sd-card-title">
+            <i class="fa-solid fa-basket-shopping"></i>
+            Cart Summary
+            {% if cart_items %}
+              <span class="sd-card-sub">({{ cart_items|length }} item{{ cart_items|length|pluralize }})</span>
+            {% endif %}
+          </h3>
+        </div>
+
+        <div class="sd-card-b">
+          {% if cart_items %}
+
+            <div class="table-responsive mb-3">
+              <table class="table sd-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="text-center" style="width:88px;">Qty</th>
+                    <th style="width:180px;">Discount</th>
+                    <th class="text-end" style="width:130px;">Total</th>
+                    <th class="text-end" style="width:104px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for it in cart_items %}
+                  <tr>
+                    <td data-label="Product">
+                      <div class="sd-prod-name">{{ it.product.name }}</div>
+                      <div class="sd-prod-sub">
+                        Unit: Tsh {{ it.unit_price|floatformat:0|intcomma }}
+                        {% if it.visible_stock is not None %}
+                          • Stock: {{ it.visible_stock }}
+                        {% endif %}
+                      </div>
+                    </td>
+
+                    <td data-label="Qty" class="text-center">
+                      <form method="post" action="{% url 'sales:update_cart_qty' it.product.id %}"
+                            class="d-flex flex-column gap-2 align-items-center">
+                        {% csrf_token %}
+                        <input type="number" name="quantity"
+                               value="{{ it.quantity }}" min="1"
+                               class="form-control sd-inline-input text-center"
+                               style="width:78px;">
+                    </td>
+
+                    <td data-label="Discount">
+                        <div class="sd-disc-wrap">
+                          <i class="fa-solid fa-tags sd-disc-icon"></i>
+                          <input type="number" name="discount"
+                                 value="{{ it.discount }}" min="0" step="1"
+                                 class="form-control sd-inline-input sd-disc-input"
+                                 placeholder="0">
+                        </div>
+                        <small class="sd-disc-help">Per unit in Tsh.</small>
+                    </td>
+
+                    <td data-label="Total" class="text-end">
+                      <div class="sd-cart-total">Tsh {{ it.total_price|floatformat:0|intcomma }}</div>
+                    </td>
+
+                    <td data-label="Actions" class="text-end">
+                      <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="sd-btn sd-btn-success" style="height:38px;">
+                          <i class="fa-solid fa-rotate"></i>
+                        </button>
+                      </form>
+
+                        <form method="post" action="{% url 'sales:remove_from_cart' it.product.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="sd-btn sd-btn-outline-danger" style="height:38px;">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <form method="post" action="{% url 'sales:submit_sale' %}">
+              {% csrf_token %}
+
+              <div class="sd-submit-wrap">
+                <div class="sd-submit-grid">
+
+                  <div>
+                    <label class="sd-submit-label">Payment</label>
+                    <select name="payment_method" id="paymentMethod" class="form-select sd-control">
+                      <option value="cash">Cash</option>
+                      <option value="bank">Bank</option>
+                      <option value="ebt">EBT (Mobile/Transfer)</option>
+                      <option value="debt">Debt</option>
+                    </select>
+                    <div id="paymentHint" class="sd-payment-badge">
+                      <i class="fa-solid fa-user"></i>
+                      Customer details can be saved for all payment methods
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="sd-submit-label">Customer Details</label>
+                    <div id="customerFields">
+                      <input name="customer_name" type="text" class="form-control sd-control" placeholder="Customer name (optional)">
+                      <input name="customer_phone" type="tel" class="form-control sd-control" placeholder="Phone number (optional)">
+                    </div>
+                    <div class="sd-submit-help">
+                      For debt you can still require name/phone in backend. For cash, bank and EBT these details are optional but allowed.
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Submit button moved down here so name/phone fields have full width -->
+                <div class="sd-submit-action">
+                  <button type="submit" class="sd-btn sd-btn-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Submit Sale
+                  </button>
+                </div>
+
+                <div class="sd-note" style="margin-top:8px;">
+                  You can add multiple items before submitting. The invoice will include all cart items and can also store customer details for any payment type.
+                </div>
+              </div>
+            </form>
+
+          {% else %}
+            <div class="sd-empty">
+              Your cart is empty.
+              <small>Search a product above and add it to cart.</small>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lowStockToast" class="toast align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        ⚠️ <strong>Low stock alert!</strong><br>
+        The following item(s) are low on stock:
+        <ul id="lowStockList" class="mb-0"></ul>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+
+  <audio id="notifSound" src="{% static 'sounds/notifications.mp3' %}" preload="auto"></audio>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const products = JSON.parse('{{ products_json|escapejs }}');
+  const catF    = document.getElementById('categoryFilter');
+  const txt     = document.getElementById('textSearch');
+  const bcIn    = document.getElementById('barcodeInput');
+  const results = document.getElementById('searchResults');
+  const details = document.getElementById('selectedDetails');
+
+  const lowToastEl = document.getElementById('lowStockToast');
+  const lowToast   = lowToastEl ? new bootstrap.Toast(lowToastEl) : null;
+  const sound      = document.getElementById('notifSound');
+
+  function filterProducts(){
+    const c = catF.value;
+    const t = txt.value.toUpperCase().trim();
+    return products.filter(p =>
+      (!c || String(p.category) === String(c)) &&
+      p.display.toUpperCase().includes(t)
+    );
+  }
+
+  function showResults(){
+    const matches = filterProducts();
+    results.innerHTML = '';
+
+    if (!txt.value.trim() || !matches.length){
+      results.classList.add('d-none');
+      return;
+    }
+
+    matches.slice(0, 50).forEach(p => {
+      const li = document.createElement('li');
+      li.textContent = p.display;
+      li.dataset.id = p.id;
+      li.addEventListener('click', () => selectProduct(p.id));
+      results.append(li);
+    });
+
+    results.classList.remove('d-none');
+  }
+
+  function selectProduct(id){
+    const p = products.find(x => String(x.id) === String(id));
+    if(!p) return;
+
+    results.classList.add('d-none');
+    txt.value = '';
+
+    const stock = (typeof p.stock !== "undefined") ? p.stock : "";
+    const rl    = (typeof p.reorder_level !== "undefined") ? p.reorder_level : 0;
+
+    details.innerHTML = `
+      <div class="d-flex flex-column gap-2">
+        <div class="sd-sel-name">${p.display}</div>
+
+        <div class="sd-sel-badges">
+          ${stock !== "" ? `<span class="sd-sel-badge"><i class="fa-solid fa-box"></i> Stock: ${stock}</span>` : ``}
+          <span class="sd-sel-badge"><i class="fa-solid fa-triangle-exclamation"></i> Reorder: ${rl}</span>
+          <span class="sd-sel-badge"><i class="fa-solid fa-tags"></i> Discount per unit</span>
+        </div>
+
+        <div class="sd-qtybar">
+          <input id="qtyInput" type="number" min="1" value="1" class="form-control sd-control" placeholder="Qty">
+          <button id="addBtn" class="sd-btn sd-btn-success">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+
+        <div class="sd-help">Tip: barcode scanner will auto-select the product.</div>
+      </div>
+    `;
+
+    const addBtn = document.getElementById('addBtn');
+    addBtn.onclick = (e) => {
+      e.preventDefault();
+      const qty = Number(document.getElementById('qtyInput').value || 0);
+      if (qty < 1){
+        alert('Enter quantity (min 1)');
+        return;
+      }
+      document.getElementById('addFormProduct').value = p.id;
+      document.getElementById('addFormQty').value = qty;
+      document.getElementById('addForm').submit();
+    };
+  }
+
+  function notifyLowStock(){
+    if(!lowToast) return;
+
+    const low = products.filter(p => Number(p.stock) <= Number(p.reorder_level));
+    if(!low.length) return;
+
+    const list = document.getElementById('lowStockList');
+    list.innerHTML = '';
+    low.slice(0, 10).forEach(p => {
+      const li = document.createElement('li');
+      li.textContent = p.display;
+      list.append(li);
+    });
+
+    try{ if(sound) sound.play(); } catch(e) {}
+    lowToast.show();
+  }
+
+  function lookupBarcode(){
+    const code = bcIn.value.trim();
+    if(!code) return;
+
+    fetch(`{% url 'sales:lookup_product' %}?barcode=${encodeURIComponent(code)}`)
+      .then(r => r.json())
+      .then(data => {
+        if(data.status === 'success'){
+          const pd = data.product;
+
+          let found = products.find(x => String(x.id) === String(pd.id));
+          if(!found){
+            found = {
+              id: pd.id,
+              display: `${pd.name} — Tsh ${parseFloat(pd.price).toFixed(2)} (Stock: ${pd.stock})`,
+              category: null,
+              stock: pd.stock,
+              reorder_level: 0
+            };
+            products.push(found);
+          }else{
+            found.stock = pd.stock;
+          }
+
+          selectProduct(found.id);
+          bcIn.value = '';
+        }else{
+          alert(data.message || "Product not found");
+        }
+      })
+      .catch(() => alert("Barcode lookup failed"));
+  }
+
+  function updatePaymentHint(){
+    const pm = document.getElementById('paymentMethod');
+    const hint = document.getElementById('paymentHint');
+    if(!pm || !hint) return;
+
+    let text = 'Customer details can be saved for all payment methods';
+    let icon = 'fa-user';
+
+    if(pm.value === 'debt'){
+      text = 'For debt, customer name and phone are recommended';
+      icon = 'fa-hand-holding-dollar';
+    }else if(pm.value === 'cash'){
+      text = 'Cash sale can also save customer details';
+      icon = 'fa-money-bill-wave';
+    }else if(pm.value === 'bank'){
+      text = 'Bank sale can also save customer details';
+      icon = 'fa-building-columns';
+    }else if(pm.value === 'ebt'){
+      text = 'EBT sale can also save customer details';
+      icon = 'fa-mobile-screen-button';
+    }
+
+    /* keep updating icon only (text is present in DOM but visually hidden) */
+    hint.innerHTML = `<i class="fa-solid ${icon}"></i> ${text}`;
+  }
+
+  txt.addEventListener('input', showResults);
+
+  document.addEventListener('click', (e) => {
+    if(!results.classList.contains('d-none')){
+      const inside = results.contains(e.target) || txt.contains(e.target);
+      if(!inside) results.classList.add('d-none');
+    }
+  });
+
+  bcIn.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter'){
+      e.preventDefault();
+      lookupBarcode();
+    }
+  });
+
+  catF.addEventListener('change', () => { txt.value = ''; showResults(); });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    notifyLowStock();
+
+    const pm = document.getElementById('paymentMethod');
+    if(pm){
+      pm.addEventListener('change', updatePaymentHint);
+      updatePaymentHint();
+    }
+  });
+</script>
+
+<form id="addForm" method="post" action="{% url 'sales:add_selected_product_to_cart' %}" style="display:none;">
+  {% csrf_token %}
+  <input type="hidden" name="product_id" id="addFormProduct">
+  <input type="hidden" name="quantity" id="addFormQty">
+</form>
+{% endblock %}

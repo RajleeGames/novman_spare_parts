@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% block title %}Add Agrovet Expense{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --af-card:#ffffff;
+    --af-text:#0f172a;
+    --af-muted:#64748b;
+    --af-line:#e2e8f0;
+    --af-line-soft:#eef2f7;
+    --af-green:#16a34a;
+    --af-green-2:#22c55e;
+    --af-green-soft:rgba(22,163,74,.08);
+    --af-blue:#2563eb;
+    --af-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .af-wrap{
+    max-width:980px;
+    margin:1rem auto 1.4rem;
+    padding:0 .85rem;
+    color:var(--af-text);
+  }
+
+  .af-card{
+    background:var(--af-card);
+    border:1px solid var(--af-line);
+    border-radius:22px;
+    box-shadow:var(--af-shadow);
+    overflow:hidden;
+  }
+
+  .af-head{
+    padding:1rem 1rem .95rem;
+    border-bottom:1px solid var(--af-line);
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(22,163,74,.10), transparent 55%),
+      linear-gradient(180deg,#ffffff,#fbfffc);
+  }
+
+  .af-head-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.8rem;
+    flex-wrap:wrap;
+  }
+
+  .af-title{
+    margin:0;
+    font-size:1.05rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .af-sub{
+    margin:.2rem 0 0;
+    color:var(--af-muted);
+    font-size:.76rem;
+    line-height:1.5;
+  }
+
+  .af-btn,
+  .af-btn-light{
+    height:42px;
+    padding:0 1rem;
+    border-radius:12px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    font-size:.8rem;
+    font-weight:800;
+    transition:.18s ease;
+    white-space:nowrap;
+  }
+
+  .af-btn{
+    color:#fff;
+    border:none;
+    background:linear-gradient(135deg,var(--af-green),var(--af-green-2));
+  }
+
+  .af-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .af-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--af-line);
+  }
+
+  .af-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .af-body{
+    padding:1rem;
+  }
+
+  .af-block{
+    background:#fff;
+    border:1px solid var(--af-line);
+    border-radius:18px;
+    padding:1rem;
+  }
+
+  .af-block-title{
+    margin:0 0 .9rem;
+    font-size:.85rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    color:var(--af-text);
+  }
+
+  .af-label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.69rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .af-control,
+  .af-area,
+  .af-block input,
+  .af-block select,
+  .af-block textarea{
+    width:100%;
+    border:1px solid var(--af-line) !important;
+    border-radius:12px !important;
+    font-size:.8rem !important;
+    box-shadow:none !important;
+    background:#fff;
+    color:#0f172a;
+  }
+
+  .af-control,
+  .af-block input,
+  .af-block select{
+    min-height:44px;
+    padding:.65rem .85rem;
+  }
+
+  .af-area,
+  .af-block textarea{
+    min-height:110px;
+    padding:.75rem .85rem;
+    resize:vertical;
+  }
+
+  .af-control:focus,
+  .af-area:focus,
+  .af-block input:focus,
+  .af-block select:focus,
+  .af-block textarea:focus{
+    border-color:rgba(22,163,74,.35) !important;
+    box-shadow:0 0 0 .18rem rgba(22,163,74,.10) !important;
+  }
+
+  .af-error{
+    margin-top:.32rem;
+    font-size:.72rem;
+    color:#dc2626;
+    font-weight:600;
+  }
+
+  .af-help{
+    margin-top:.32rem;
+    font-size:.71rem;
+    color:var(--af-muted);
+  }
+
+  .af-summary{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:.85rem;
+    margin-top:1rem;
+  }
+
+  .af-mini{
+    border:1px solid var(--af-line);
+    border-radius:16px;
+    padding:.85rem;
+    background:#f8fafc;
+  }
+
+  .af-mini-label{
+    display:block;
+    font-size:.68rem;
+    color:var(--af-muted);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:800;
+    margin-bottom:.18rem;
+  }
+
+  .af-mini-value{
+    font-size:.92rem;
+    font-weight:900;
+    color:var(--af-text);
+  }
+
+  .af-actions{
+    display:flex;
+    gap:.7rem;
+    flex-wrap:wrap;
+    margin-top:1rem;
+  }
+
+  .af-top-error{
+    margin-bottom:1rem;
+    border:1px solid rgba(220,38,38,.14);
+    background:rgba(220,38,38,.05);
+    color:#991b1b;
+    border-radius:14px;
+    padding:.85rem .95rem;
+    font-size:.78rem;
+    font-weight:600;
+  }
+
+  @media (max-width:768px){
+    .af-wrap{
+      padding:0 .7rem;
+    }
+
+    .af-head,
+    .af-body,
+    .af-block{
+      padding:.9rem;
+    }
+
+    .af-summary{
+      grid-template-columns:1fr;
+    }
+
+    .af-btn,
+    .af-btn-light{
+      width:100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="af-wrap">
+  <div class="af-card">
+
+    <div class="af-head">
+      <div class="af-head-top">
+        <div>
+          <h2 class="af-title">
+            <i class="fa-solid fa-money-bill-wave text-success"></i>
+            Add Agrovet Expense
+          </h2>
+          <div class="af-sub">
+            Record rent, transport, casual labour, electricity, stock handling and other agrovet business costs.
+          </div>
+        </div>
+
+        <a href="{% url 'agrovet:expense_list' %}" class="af-btn-light">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Expenses
+        </a>
+      </div>
+    </div>
+
+    <div class="af-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="af-top-error">
+            {{ form.non_field_errors|join:", " }}
+          </div>
+        {% endif %}
+
+        <div class="af-block">
+          <h3 class="af-block-title">
+            <i class="fa-solid fa-file-invoice-dollar text-primary"></i>
+            Expense Information
+          </h3>
+
+          <div class="row g-3">
+            {% for field in form %}
+              <div class="col-12 {% if field.name == 'description' %}col-md-12{% else %}col-md-6{% endif %}">
+                <label class="af-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+                  <div class="af-help">{{ field.help_text }}</div>
+                {% endif %}
+
+                {% if field.errors %}
+                  <div class="af-error">{{ field.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="af-summary">
+            <div class="af-mini">
+              <span class="af-mini-label">Category</span>
+              <div class="af-mini-value" id="expenseCategoryPreview">—</div>
+            </div>
+
+            <div class="af-mini">
+              <span class="af-mini-label">Date</span>
+              <div class="af-mini-value" id="expenseDatePreview">—</div>
+            </div>
+
+            <div class="af-mini">
+              <span class="af-mini-label">Amount</span>
+              <div class="af-mini-value" id="expenseAmountPreview">Tsh 0</div>
+            </div>
+          </div>
+
+          <div class="af-actions">
+            <button type="submit" class="af-btn">
+              <i class="fa-solid fa-floppy-disk"></i>
+              Save Expense
+            </button>
+
+            <a href="{% url 'agrovet:expense_list' %}" class="af-btn-light">
+              <i class="fa-solid fa-xmark"></i>
+              Cancel
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const categoryInput = document.getElementById("id_category");
+  const dateInput = document.getElementById("id_date");
+  const amountInput = document.getElementById("id_amount");
+
+  const categoryPreview = document.getElementById("expenseCategoryPreview");
+  const datePreview = document.getElementById("expenseDatePreview");
+  const amountPreview = document.getElementById("expenseAmountPreview");
+
+  function formatMoney(value){
+    const num = parseFloat(value || 0);
+    return "Tsh " + num.toLocaleString();
+  }
+
+  function updateExpensePreview(){
+    if (categoryPreview){
+      categoryPreview.textContent = (categoryInput?.value || "").trim() || "—";
+    }
+
+    if (datePreview){
+      datePreview.textContent = (dateInput?.value || "").trim() || "—";
+    }
+
+    if (amountPreview){
+      amountPreview.textContent = formatMoney(amountInput?.value || 0);
+    }
+  }
+
+  [categoryInput, dateInput, amountInput].forEach(el => {
+    el?.addEventListener("input", updateExpensePreview);
+    el?.addEventListener("change", updateExpensePreview);
+  });
+
+  window.addEventListener("load", updateExpensePreview);
+</script>
+{% endblock %}

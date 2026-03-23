@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Agrovet Expenses{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --ae-card:#ffffff;
+    --ae-text:#0f172a;
+    --ae-muted:#64748b;
+    --ae-line:#e2e8f0;
+    --ae-line-soft:#eef2f7;
+    --ae-green:#16a34a;
+    --ae-green-soft:rgba(22,163,74,.08);
+    --ae-blue:#2563eb;
+    --ae-blue-soft:rgba(37,99,235,.08);
+    --ae-red:#dc2626;
+    --ae-red-soft:rgba(220,38,38,.08);
+    --ae-amber:#f59e0b;
+    --ae-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .ae-wrap{
+    max-width:1200px;
+    margin:1rem auto 1.4rem;
+    padding:0 .85rem;
+    color:var(--ae-text);
+  }
+
+  .ae-hero,
+  .ae-filter,
+  .ae-table-card{
+    background:var(--ae-card);
+    border:1px solid var(--ae-line);
+    border-radius:22px;
+    box-shadow:var(--ae-shadow);
+  }
+
+  .ae-hero{
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(22,163,74,.10), transparent 55%),
+      linear-gradient(180deg,#ffffff,#fbfffc);
+  }
+
+  .ae-hero-top,
+  .ae-table-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.8rem;
+    flex-wrap:wrap;
+  }
+
+  .ae-title{
+    margin:0;
+    font-size:1.08rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .ae-sub{
+    margin:.22rem 0 0;
+    font-size:.76rem;
+    color:var(--ae-muted);
+    line-height:1.5;
+  }
+
+  .ae-btn,
+  .ae-btn-light{
+    height:40px;
+    padding:0 .95rem;
+    border-radius:12px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    font-size:.77rem;
+    font-weight:800;
+    transition:.18s ease;
+    white-space:nowrap;
+  }
+
+  .ae-btn{
+    border:none;
+    color:#fff;
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+  }
+
+  .ae-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .ae-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--ae-line);
+  }
+
+  .ae-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .ae-filter{
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ae-label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.69rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .ae-control{
+    height:40px;
+    border-radius:12px;
+    border:1px solid var(--ae-line);
+    font-size:.78rem;
+    box-shadow:none !important;
+  }
+
+  .ae-control:focus{
+    border-color:rgba(22,163,74,.35);
+    box-shadow:0 0 0 .18rem rgba(22,163,74,.10) !important;
+  }
+
+  .ae-stats{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ae-stat{
+    background:#fff;
+    border:1px solid var(--ae-line);
+    border-radius:20px;
+    box-shadow:var(--ae-shadow);
+    padding:1rem;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .ae-stat::after{
+    content:"";
+    position:absolute;
+    right:-18px;
+    top:-18px;
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+
+  .ae-stat.red{ background:linear-gradient(180deg,#ffffff,#fff8f8); }
+  .ae-stat.blue{ background:linear-gradient(180deg,#ffffff,#f8fbff); }
+  .ae-stat.green{ background:linear-gradient(180deg,#ffffff,#f7fff9); }
+
+  .ae-stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.7rem;
+    margin-bottom:.75rem;
+  }
+
+  .ae-stat-label{
+    font-size:.71rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .ae-stat-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.95rem;
+  }
+
+  .ae-stat.red .ae-stat-icon{ background:var(--ae-red-soft); color:var(--ae-red); }
+  .ae-stat.blue .ae-stat-icon{ background:var(--ae-blue-soft); color:var(--ae-blue); }
+  .ae-stat.green .ae-stat-icon{ background:var(--ae-green-soft); color:var(--ae-green); }
+
+  .ae-stat-value{
+    font-size:1.16rem;
+    font-weight:900;
+    line-height:1.1;
+    letter-spacing:-.03em;
+    margin-bottom:.18rem;
+  }
+
+  .ae-stat-meta{
+    font-size:.73rem;
+    color:var(--ae-muted);
+  }
+
+  .ae-table-card{
+    overflow:hidden;
+  }
+
+  .ae-table-head{
+    padding:.95rem 1rem;
+    border-bottom:1px solid var(--ae-line-soft);
+  }
+
+  .ae-table-title{
+    margin:0;
+    font-size:.88rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .ae-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.35rem;
+    padding:.32rem .58rem;
+    border-radius:999px;
+    font-size:.69rem;
+    font-weight:800;
+    border:1px solid var(--ae-line);
+    background:#f8fafc;
+    color:#475569;
+  }
+
+  .ae-table-wrap{
+    overflow:auto;
+  }
+
+  .ae-table{
+    width:100%;
+    min-width:760px;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  .ae-table thead th{
+    background:linear-gradient(180deg,#f8fbff,#f3f7fb);
+    color:#475569;
+    font-size:.69rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:.78rem .82rem;
+    border-bottom:1px solid var(--ae-line);
+    white-space:nowrap;
+  }
+
+  .ae-table tbody td{
+    font-size:.78rem;
+    padding:.82rem .82rem;
+    border-top:1px solid var(--ae-line-soft);
+    vertical-align:middle;
+  }
+
+  .ae-table tbody tr:nth-child(even){
+    background:#fcfdfd;
+  }
+
+  .ae-table tbody tr:hover{
+    background:#f8fafc;
+  }
+
+  .ae-cat{
+    font-weight:800;
+    color:var(--ae-text);
+  }
+
+  .ae-meta{
+    font-size:.71rem;
+    color:var(--ae-muted);
+    margin-top:.15rem;
+  }
+
+  .ae-amount{
+    font-weight:900;
+    color:var(--ae-red);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .ae-empty{
+    text-align:center;
+    color:var(--ae-muted);
+    padding:1.5rem .85rem;
+    border:1px dashed var(--ae-line);
+    border-radius:16px;
+    background:#fff;
+    margin:1rem;
+  }
+
+  .ae-empty i{
+    font-size:1.15rem;
+    color:#94a3b8;
+    margin-bottom:.45rem;
+  }
+
+  .ae-empty h6{
+    font-size:.9rem;
+    font-weight:800;
+    color:var(--ae-text);
+    margin-bottom:.15rem;
+  }
+
+  .ae-empty p{
+    font-size:.74rem;
+    margin:0;
+  }
+
+  .ae-pagination{
+    padding:1rem;
+    border-top:1px solid var(--ae-line-soft);
+    display:flex;
+    justify-content:flex-end;
+  }
+
+  .pagination{
+    margin:0;
+  }
+
+  .page-link{
+    border-radius:10px !important;
+    margin:0 .15rem;
+    border-color:var(--ae-line);
+    color:#334155;
+    font-size:.76rem;
+    font-weight:700;
+  }
+
+  .page-item.active .page-link{
+    background:#16a34a;
+    border-color:#16a34a;
+  }
+
+  @media (max-width:900px){
+    .ae-stats{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media (max-width:768px){
+    .ae-wrap{ padding:0 .7rem; }
+    .ae-hero,
+    .ae-filter{
+      padding:.9rem;
+    }
+    .ae-btn,
+    .ae-btn-light{
+      width:100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ae-wrap">
+
+  <div class="ae-hero">
+    <div class="ae-hero-top">
+      <div>
+        <h2 class="ae-title">
+          <i class="fa-solid fa-money-bill-wave text-success"></i>
+          Agrovet Expenses
+        </h2>
+        <div class="ae-sub">
+          All expense records for the agrovet business, including branch cost tracking and daily spending history.
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'agrovet:expense_create' %}" class="ae-btn">
+          <i class="fa-solid fa-plus"></i>
+          Add Expense
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ae-filter">
+    <form method="get" class="row g-3 align-items-end">
+      {% if branches %}
+      <div class="col-12 col-md-4">
+        <label class="ae-label">Branch</label>
+        <select name="branch" class="form-select ae-control">
+          <option value="">All Branches</option>
+          {% for b in branches %}
+            <option value="{{ b.id }}" {% if selected_branch == b.id|stringformat:"s" %}selected{% endif %}>
+              {{ b.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="col-12 col-md-3">
+        <button class="ae-btn w-100">
+          <i class="fa-solid fa-filter"></i>
+          Filter
+        </button>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <a href="{% url 'agrovet:expense_list' %}" class="ae-btn-light w-100">
+          <i class="fa-solid fa-rotate-left"></i>
+          Reset
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="ae-stats">
+    <div class="ae-stat red">
+      <div class="ae-stat-top">
+        <div class="ae-stat-label">Total Expenses</div>
+        <div class="ae-stat-icon"><i class="fa-solid fa-wallet"></i></div>
+      </div>
+      <div class="ae-stat-value">
+        Tsh
+        {% if page_obj.object_list %}
+          {{ page_obj.object_list|length }}
+        {% else %}
+          0
+        {% endif %}
+      </div>
+      <div class="ae-stat-meta">Rows shown on this page</div>
+    </div>
+
+    <div class="ae-stat blue">
+      <div class="ae-stat-top">
+        <div class="ae-stat-label">Branch Filter</div>
+        <div class="ae-stat-icon"><i class="fa-solid fa-building"></i></div>
+      </div>
+      <div class="ae-stat-value">
+        {% if selected_branch_obj %}
+          {{ selected_branch_obj.name }}
+        {% else %}
+          All
+        {% endif %}
+      </div>
+      <div class="ae-stat-meta">Current viewing branch</div>
+    </div>
+
+    <div class="ae-stat green">
+      <div class="ae-stat-top">
+        <div class="ae-stat-label">Records</div>
+        <div class="ae-stat-icon"><i class="fa-solid fa-receipt"></i></div>
+      </div>
+      <div class="ae-stat-value">{{ page_obj.paginator.count|intcomma }}</div>
+      <div class="ae-stat-meta">Total expense entries</div>
+    </div>
+  </div>
+
+  <div class="ae-table-card">
+    <div class="ae-table-head">
+      <h3 class="ae-table-title">
+        <i class="fa-solid fa-list"></i>
+        Expense Records
+      </h3>
+      <span class="ae-chip">
+        <i class="fa-solid fa-clock"></i>
+        Latest history
+      </span>
+    </div>
+
+    {% if expenses %}
+      <div class="ae-table-wrap">
+        <table class="ae-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Branch</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>{{ e.date|date:"Y-m-d" }}</td>
+              <td>
+                <div class="ae-cat">{{ e.category }}</div>
+              </td>
+              <td>
+                {{ e.description|default:"-" }}
+              </td>
+              <td>
+                {{ e.branch.name|default:"-" }}
+              </td>
+              <td class="text-end ae-amount">
+                Tsh {{ e.amount|floatformat:0|intcomma }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="ae-empty">
+        <i class="fa-regular fa-face-frown"></i>
+        <h6>No expenses found</h6>
+        <p>No agrovet expense records are available for this filter.</p>
+      </div>
+    {% endif %}
+
+    {% if page_obj.has_other_pages %}
+    <div class="ae-pagination">
+      <nav>
+        <ul class="pagination pagination-sm">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?page={{ page_obj.previous_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                Previous
+              </a>
+            </li>
+          {% endif %}
+
+          <li class="page-item active">
+            <span class="page-link">{{ page_obj.number }}</span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?page={{ page_obj.next_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                Next
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

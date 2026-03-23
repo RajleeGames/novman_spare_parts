@@ -1,0 +1,750 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Stock Management — Kilasi Investment{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --sm-bg:#f8fafc;
+    --sm-card:#ffffff;
+    --sm-line:#e2e8f0;
+    --sm-line-soft:#eef2f7;
+    --sm-text:#0f172a;
+    --sm-muted:#64748b;
+    --sm-primary:#2563eb;
+    --sm-primary-soft:rgba(37,99,235,.08);
+    --sm-success:#16a34a;
+    --sm-danger:#dc2626;
+    --sm-warning:#f59e0b;
+    --sm-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .sm-wrap{
+    max-width:1200px;
+    margin:1rem auto 1.5rem;
+    padding:0 .85rem;
+    color:var(--sm-text);
+  }
+
+  .sm-hero{
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    border:1px solid var(--sm-line);
+    border-radius:20px;
+    box-shadow:var(--sm-shadow);
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+  }
+
+  .sm-hero-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.8rem;
+  }
+
+  .sm-title{
+    margin:0;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:-.02em;
+    color:var(--sm-text);
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .sm-sub{
+    font-size:.74rem;
+    color:var(--sm-muted);
+    margin:.22rem 0 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    align-items:center;
+  }
+
+  .sm-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.38rem;
+    padding:.32rem .62rem;
+    border-radius:999px;
+    background:var(--sm-primary-soft);
+    color:var(--sm-primary);
+    font-size:.72rem;
+    font-weight:600;
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .sm-badge.soft{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--sm-line);
+  }
+
+  .sm-card{
+    background:var(--sm-card);
+    border:1px solid var(--sm-line);
+    border-radius:20px;
+    box-shadow:var(--sm-shadow);
+    overflow:hidden;
+    margin-bottom:1rem;
+  }
+
+  .sm-card-head{
+    padding:.9rem 1rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.7rem;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--sm-line-soft);
+  }
+
+  .sm-card-title{
+    font-size:.86rem;
+    font-weight:700;
+    color:var(--sm-text);
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    margin:0;
+  }
+
+  .sm-card-note{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.3rem .58rem;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#475569;
+    font-size:.72rem;
+    font-weight:600;
+    border:1px solid var(--sm-line);
+  }
+
+  .sm-card-body{
+    padding:1rem;
+  }
+
+  .sm-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.85rem;
+  }
+
+  @media (max-width: 991.98px){
+    .sm-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .sm-field label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.71rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sm-control{
+    width:100%;
+    height:40px;
+    border-radius:12px;
+    border:1px solid var(--sm-line);
+    background:#fff;
+    color:var(--sm-text);
+    font-size:.78rem;
+    box-shadow:none !important;
+  }
+
+  .sm-control:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .sm-help{
+    margin-top:.25rem;
+    font-size:.69rem;
+    color:var(--sm-muted);
+  }
+
+  .sm-search-box{
+    position:relative;
+  }
+
+  .sm-results{
+    position:absolute;
+    left:0;
+    right:0;
+    top:100%;
+    background:#fff;
+    border:1px solid var(--sm-line);
+    border-radius:12px;
+    margin-top:6px;
+    max-height:260px;
+    overflow:auto;
+    z-index:50;
+    box-shadow:0 14px 28px rgba(15,23,42,.12);
+  }
+
+  .sm-results button{
+    width:100%;
+    text-align:left;
+    padding:.68rem .8rem;
+    border:0;
+    background:#fff;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    border-top:1px solid var(--sm-line-soft);
+  }
+
+  .sm-results button:first-child{
+    border-top:0;
+  }
+
+  .sm-results button:hover{
+    background:#f8fafc;
+  }
+
+  .sm-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    font-size:.72rem;
+    padding:.3rem .58rem;
+    border-radius:999px;
+    border:1px solid var(--sm-line);
+    background:#f8fafc;
+    color:#475569;
+    font-weight:600;
+  }
+
+  .sm-pill.good{
+    background:rgba(22,163,74,.08);
+    border-color:rgba(22,163,74,.16);
+    color:#166534;
+  }
+
+  .sm-pill.bad{
+    background:rgba(220,38,38,.08);
+    border-color:rgba(220,38,38,.16);
+    color:#991b1b;
+  }
+
+  .sm-actions{
+    display:flex;
+    gap:.65rem;
+    flex-wrap:wrap;
+    align-items:center;
+    grid-column:1 / -1;
+  }
+
+  .sm-btn,
+  .sm-btn-light{
+    height:40px;
+    border:none;
+    border-radius:12px;
+    padding:0 .95rem;
+    font-size:.77rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    text-decoration:none;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+
+  .sm-btn{
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+  }
+
+  .sm-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sm-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--sm-line);
+  }
+
+  .sm-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .sm-table{
+    margin:0;
+    width:100%;
+  }
+
+  .sm-table thead th{
+    background:linear-gradient(180deg, #f8fbff, #f1f6ff);
+    color:#475569;
+    font-size:.72rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:1px solid var(--sm-line);
+    padding:.82rem .95rem;
+    white-space:nowrap;
+  }
+
+  .sm-table tbody td{
+    padding:.82rem .95rem;
+    vertical-align:middle;
+    border-top:1px solid var(--sm-line-soft);
+    font-size:.79rem;
+    color:var(--sm-text);
+  }
+
+  .sm-table tbody tr:hover{
+    background:#fbfdff;
+  }
+
+  .sm-mono{
+    font-variant-numeric:tabular-nums;
+  }
+
+  .sm-product{
+    font-weight:600;
+    color:var(--sm-text);
+  }
+
+  .sm-empty{
+    background:#fff;
+    border:1px dashed var(--sm-line);
+    border-radius:16px;
+    padding:1.8rem 1rem;
+    text-align:center;
+    color:var(--sm-muted);
+    margin:1rem;
+  }
+
+  .sm-empty i{
+    font-size:1.15rem;
+    color:#94a3b8;
+    margin-bottom:.45rem;
+  }
+
+  .sm-empty h6{
+    font-size:.88rem;
+    font-weight:700;
+    color:var(--sm-text);
+    margin-bottom:.12rem;
+  }
+
+  .sm-empty p{
+    font-size:.74rem;
+    margin:0;
+  }
+
+  .sm-batch-box{
+    grid-column:1 / -1;
+    border:1px dashed #cbd5e1;
+    background:linear-gradient(180deg, #fbfdff, #f8fafc);
+    border-radius:16px;
+    padding:.9rem;
+  }
+
+  .sm-batch-title{
+    margin:0 0 .7rem;
+    font-size:.78rem;
+    font-weight:700;
+    color:#0f172a;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .sm-hidden{
+    display:none !important;
+  }
+
+  @media (max-width: 768px){
+    .sm-wrap{
+      padding:0 .7rem;
+    }
+
+    .sm-hero{
+      padding:.9rem;
+    }
+
+    .sm-card-body{
+      padding:.85rem;
+    }
+
+    .sm-actions{
+      flex-direction:column;
+      align-items:stretch;
+    }
+
+    .sm-btn,
+    .sm-btn-light{
+      width:100%;
+      justify-content:center;
+    }
+
+    .sm-table thead{
+      display:none;
+    }
+
+    .sm-table,
+    .sm-table tbody,
+    .sm-table tr,
+    .sm-table td{
+      display:block;
+      width:100%;
+    }
+
+    .sm-table tbody tr{
+      padding:.2rem 0;
+    }
+
+    .sm-table tbody td{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      padding:.72rem .75rem;
+    }
+
+    .sm-table tbody td::before{
+      content:attr(data-label);
+      font-size:.68rem;
+      font-weight:700;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      min-width:92px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sm-wrap">
+
+  <div class="sm-hero">
+    <div class="sm-hero-top">
+      <div>
+        <h2 class="sm-title">
+          <i class="fa-solid fa-boxes-stacked text-primary"></i>
+          Stock Management
+        </h2>
+
+        <p class="sm-sub">
+          <span class="sm-badge">
+            <i class="fa-solid fa-user-shield"></i>
+            Admin only
+          </span>
+          <span class="sm-badge soft">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            Add or reduce stock per branch
+          </span>
+          <span class="sm-badge soft">
+            <i class="fa-solid fa-layer-group"></i>
+            FIFO batch ready
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-card">
+    <div class="sm-card-head">
+      <h3 class="sm-card-title">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Update Stock
+      </h3>
+      <div class="sm-card-note">
+        <i class="fa-solid fa-building"></i>
+        Choose branch inside form
+      </div>
+    </div>
+
+    <div class="sm-card-body">
+      <form method="post" class="sm-grid">
+        {% csrf_token %}
+
+        <input type="hidden" name="product_id" id="productId">
+
+        <div class="sm-field">
+          <label>Branch</label>
+          <select name="branch" id="branchSelect" class="form-select sm-control" required>
+            <option value="">Choose branch</option>
+            {% for b in branches %}
+              <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                {{ b.name }}
+              </option>
+            {% endfor %}
+          </select>
+          <div class="sm-help">Choose the branch where stock will be added or reduced.</div>
+        </div>
+
+        <div class="sm-field sm-search-box">
+          <label>Search Product</label>
+          <input type="text"
+                 id="productSearch"
+                 class="form-control sm-control"
+                 placeholder="Type product name..."
+                 autocomplete="off">
+          <div id="searchResults" class="sm-results d-none"></div>
+          <div class="sm-help" id="selectedProductText">No product selected.</div>
+        </div>
+
+        <div class="sm-field">
+          <label>Quantity</label>
+          <input type="number" name="quantity" class="form-control sm-control" min="1" value="1" required>
+          <div class="sm-help">Enter how many units to add or reduce.</div>
+        </div>
+
+        <div class="sm-field">
+          <label>Action</label>
+          <select name="action" id="stockAction" class="form-select sm-control">
+            <option value="add">Add Stock (Restock)</option>
+            <option value="reduce">Reduce Stock</option>
+          </select>
+          <div class="sm-help">Reduce is for damage, correction or adjustment.</div>
+        </div>
+
+        <div id="batchFields" class="sm-batch-box">
+          <h4 class="sm-batch-title">
+            <i class="fa-solid fa-layer-group text-primary"></i>
+            Batch Pricing Details
+          </h4>
+
+          <div class="sm-grid" style="gap:.85rem;">
+            <div class="sm-field">
+              <label>Buying Price</label>
+              <input type="number"
+                     name="unit_cost"
+                     id="unitCost"
+                     class="form-control sm-control"
+                     min="0"
+                     step="0.01"
+                     placeholder="e.g. 3000">
+              <div class="sm-help">Required when adding stock. This becomes the batch buying price.</div>
+            </div>
+
+            <div class="sm-field">
+              <label>Selling Price</label>
+              <input type="number"
+                     name="unit_selling_price"
+                     id="unitSellingPrice"
+                     class="form-control sm-control"
+                     min="0"
+                     step="0.01"
+                     placeholder="e.g. 5000">
+              <div class="sm-help">Optional. Leave empty to use current product selling price.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sm-field" style="grid-column:1 / -1;">
+          <label>Note (Optional)</label>
+          <input type="text"
+                 name="note"
+                 class="form-control sm-control"
+                 placeholder="Example: Supplier delivery invoice #123 / Damaged items / Stock correction">
+        </div>
+
+        <div class="sm-actions">
+          <button type="submit" class="sm-btn">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save Stock Change
+          </button>
+
+          <a href="{% url 'sales:stock_management' %}" class="sm-btn-light">
+            <i class="fa-solid fa-rotate-left"></i>
+            Reset
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="sm-card">
+    <div class="sm-card-head">
+      <h3 class="sm-card-title">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Recent Stock Movements
+      </h3>
+      <div class="sm-card-note">
+        <i class="fa-solid fa-calendar-day"></i>
+        {{ today_str }}
+      </div>
+    </div>
+
+    {% if movements %}
+      <div class="table-responsive">
+        <table class="table sm-table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Branch</th>
+              <th class="text-end">Change</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in movements %}
+              <tr>
+                <td data-label="Date">{{ m.timestamp|date:"d M Y H:i" }}</td>
+                <td data-label="Product">
+                  <span class="sm-product">{{ m.product.name }}</span>
+                </td>
+                <td data-label="Branch">{{ m.branch.name|default:"—" }}</td>
+                <td data-label="Change" class="text-end sm-mono">
+                  {% if m.change >= 0 %}
+                    <span class="sm-pill good">+{{ m.change }}</span>
+                  {% else %}
+                    <span class="sm-pill bad">{{ m.change }}</span>
+                  {% endif %}
+                </td>
+                <td data-label="Note" class="text-muted">{{ m.note|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="sm-empty">
+        <i class="fa-solid fa-box-open"></i>
+        <h6>No stock movements yet</h6>
+        <p>Once stock changes are made, they will appear here.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const searchInput = document.getElementById("productSearch");
+  const resultsBox = document.getElementById("searchResults");
+  const productIdEl = document.getElementById("productId");
+  const selectedText = document.getElementById("selectedProductText");
+  const actionEl = document.getElementById("stockAction");
+  const batchFields = document.getElementById("batchFields");
+  const unitCost = document.getElementById("unitCost");
+  const unitSellingPrice = document.getElementById("unitSellingPrice");
+  const branchSelect = document.getElementById("branchSelect");
+
+  let t = null;
+
+  function hideResults(){
+    resultsBox.classList.add("d-none");
+    resultsBox.innerHTML = "";
+  }
+
+  function toggleBatchFields(){
+    const isAdd = (actionEl.value || "add") === "add";
+    if(isAdd){
+      batchFields.classList.remove("sm-hidden");
+      unitCost.setAttribute("required", "required");
+    }else{
+      batchFields.classList.add("sm-hidden");
+      unitCost.removeAttribute("required");
+      unitCost.value = "";
+      unitSellingPrice.value = "";
+    }
+  }
+
+  function showResults(items){
+    if(!items.length){
+      hideResults();
+      return;
+    }
+
+    resultsBox.innerHTML = "";
+    items.forEach(p => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.innerHTML = `
+        <div>
+          <div class="fw-semibold">${p.name}</div>
+          <div class="sm-help">TZS ${Number(p.price || 0).toLocaleString()}</div>
+        </div>
+        <div class="sm-pill ${p.stock > 0 ? "good" : "bad"}">Stock: ${p.stock}</div>
+      `;
+      btn.addEventListener("click", () => {
+        productIdEl.value = p.id;
+        selectedText.innerHTML = `Selected: <strong>${p.name}</strong> • Current stock: <strong>${p.stock}</strong>`;
+        searchInput.value = p.name;
+        hideResults();
+
+        if(unitSellingPrice && !unitSellingPrice.value && p.price){
+          unitSellingPrice.value = p.price;
+        }
+      });
+      resultsBox.appendChild(btn);
+    });
+
+    resultsBox.classList.remove("d-none");
+  }
+
+  async function doSearch(){
+    const q = (searchInput.value || "").trim();
+    const branchId = (branchSelect.value || "").trim();
+
+    if(!branchId){
+      hideResults();
+      selectedText.innerHTML = "Please choose branch first.";
+      return;
+    }
+
+    if(q.length < 2){
+      hideResults();
+      return;
+    }
+
+    const url = `{% url 'sales:stock_search_products' %}?q=${encodeURIComponent(q)}&branch=${encodeURIComponent(branchId)}`;
+    try{
+      const r = await fetch(url);
+      const data = await r.json();
+      showResults(data || []);
+    }catch(e){
+      hideResults();
+    }
+  }
+
+  branchSelect.addEventListener("change", () => {
+    productIdEl.value = "";
+    searchInput.value = "";
+    selectedText.innerHTML = "No product selected.";
+    hideResults();
+  });
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(t);
+    t = setTimeout(doSearch, 250);
+  });
+
+  actionEl.addEventListener("change", toggleBatchFields);
+
+  document.addEventListener("click", (e) => {
+    if(!resultsBox.contains(e.target) && e.target !== searchInput){
+      hideResults();
+    }
+  });
+
+  toggleBatchFields();
+})();
+</script>
+{% endblock %}

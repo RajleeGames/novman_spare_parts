@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Agrovet Sales{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --as-card:#ffffff;
+    --as-text:#0f172a;
+    --as-muted:#64748b;
+    --as-line:#e2e8f0;
+    --as-soft:#f8fafc;
+    --as-green:#16a34a;
+    --as-blue:#2563eb;
+    --as-amber:#d97706;
+    --as-red:#dc2626;
+    --as-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .as-wrap{
+    max-width:1180px;
+    margin:1rem auto 1.5rem;
+    padding:0 .85rem;
+    color:var(--as-text);
+  }
+
+  .as-card{
+    background:var(--as-card);
+    border:1px solid var(--as-line);
+    border-radius:22px;
+    box-shadow:var(--as-shadow);
+    overflow:hidden;
+  }
+
+  .as-head{
+    padding:1rem 1rem .95rem;
+    border-bottom:1px solid var(--as-line);
+    background:
+      linear-gradient(135deg, rgba(22,163,74,.06), rgba(34,197,94,.03)),
+      linear-gradient(180deg,#fff,#fbfffc);
+  }
+
+  .as-head-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.9rem;
+    flex-wrap:wrap;
+  }
+
+  .as-title{
+    margin:0;
+    font-size:1rem;
+    font-weight:800;
+    color:var(--as-text);
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .as-sub{
+    margin:.22rem 0 0;
+    font-size:.76rem;
+    color:var(--as-muted);
+  }
+
+  .as-btn{
+    height:42px;
+    padding:0 1rem;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--as-green),#22c55e);
+    color:#fff;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.42rem;
+  }
+
+  .as-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .as-body{
+    padding:1rem;
+  }
+
+  .as-filter{
+    background:#fff;
+    border:1px solid var(--as-line);
+    border-radius:18px;
+    padding:.9rem;
+    margin-bottom:1rem;
+  }
+
+  .as-label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.69rem;
+    font-weight:800;
+    color:var(--as-muted);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .as-control{
+    min-height:42px;
+    border:1px solid var(--as-line) !important;
+    border-radius:12px !important;
+    font-size:.8rem !important;
+    box-shadow:none !important;
+  }
+
+  .as-control:focus{
+    border-color:rgba(37,99,235,.35) !important;
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .as-btn-light{
+    height:42px;
+    padding:0 1rem;
+    border:1px solid var(--as-line);
+    border-radius:12px;
+    background:#fff;
+    color:#334155;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.42rem;
+  }
+
+  .as-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .as-table-wrap{
+    overflow:auto;
+    border:1px solid var(--as-line);
+    border-radius:18px;
+  }
+
+  .as-table{
+    width:100%;
+    min-width:980px;
+    margin:0;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  .as-table thead th{
+    background:linear-gradient(180deg,#f8fbff,#f1f6ff);
+    color:#475569;
+    padding:.82rem .9rem;
+    font-size:.71rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    white-space:nowrap;
+    border-bottom:1px solid var(--as-line);
+  }
+
+  .as-table tbody td{
+    padding:.85rem .9rem;
+    border-top:1px solid #eef2f7;
+    font-size:.79rem;
+    vertical-align:middle;
+    background:#fff;
+  }
+
+  .as-table tbody tr:nth-child(even) td{
+    background:#fcfefd;
+  }
+
+  .as-table tbody tr:hover td{
+    background:#f8fafc;
+  }
+
+  .as-item{
+    font-weight:800;
+    color:var(--as-text);
+    font-size:.81rem;
+    line-height:1.35;
+  }
+
+  .as-meta{
+    font-size:.7rem;
+    color:var(--as-muted);
+    margin-top:.14rem;
+    line-height:1.4;
+  }
+
+  .as-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:.34rem .62rem;
+    border-radius:999px;
+    font-size:.69rem;
+    font-weight:800;
+    text-transform:uppercase;
+    border:1px solid transparent;
+    white-space:nowrap;
+  }
+
+  .as-badge.cash{
+    color:#166534;
+    background:rgba(22,163,74,.10);
+    border-color:rgba(22,163,74,.14);
+  }
+
+  .as-badge.bank{
+    color:#1d4ed8;
+    background:rgba(37,99,235,.10);
+    border-color:rgba(37,99,235,.14);
+  }
+
+  .as-badge.mobile{
+    color:#7c3aed;
+    background:rgba(124,58,237,.10);
+    border-color:rgba(124,58,237,.14);
+  }
+
+  .as-badge.debt{
+    color:#b45309;
+    background:rgba(245,158,11,.12);
+    border-color:rgba(245,158,11,.16);
+  }
+
+  .as-money{
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+
+  .as-profit{
+    color:var(--as-green);
+  }
+
+  .as-balance{
+    color:var(--as-amber);
+  }
+
+  .as-view{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
+    height:34px;
+    padding:0 .8rem;
+    border-radius:10px;
+    text-decoration:none;
+    font-size:.73rem;
+    font-weight:800;
+    color:var(--as-green);
+    background:rgba(22,163,74,.06);
+    border:1px solid rgba(22,163,74,.12);
+  }
+
+  .as-view:hover{
+    color:#166534;
+    background:rgba(22,163,74,.10);
+  }
+
+  .as-empty{
+    padding:2rem 1rem;
+    text-align:center;
+    color:var(--as-muted);
+    background:#fff;
+  }
+
+  .as-empty i{
+    font-size:1.2rem;
+    color:#94a3b8;
+    margin-bottom:.45rem;
+  }
+
+  .as-empty h6{
+    margin-bottom:.15rem;
+    font-size:.9rem;
+    font-weight:800;
+    color:var(--as-text);
+  }
+
+  .as-empty p{
+    margin:0;
+    font-size:.75rem;
+  }
+
+  .as-pagination{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:1rem;
+  }
+
+  .as-pagination .pagination{
+    margin:0;
+  }
+
+  .as-pagination .page-link{
+    border-radius:10px !important;
+    margin:0 .12rem;
+    border-color:var(--as-line);
+    color:#334155;
+    font-size:.76rem;
+    font-weight:700;
+    box-shadow:none !important;
+  }
+
+  .as-pagination .page-item.active .page-link{
+    background:var(--as-green);
+    border-color:var(--as-green);
+    color:#fff;
+  }
+
+  @media (max-width:767px){
+    .as-wrap{
+      padding:0 .7rem;
+    }
+
+    .as-head,
+    .as-body,
+    .as-filter{
+      padding:.9rem;
+    }
+
+    .as-btn,
+    .as-btn-light{
+      width:100%;
+    }
+
+    .as-pagination{
+      justify-content:center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="as-wrap">
+  <div class="as-card">
+    <div class="as-head">
+      <div class="as-head-top">
+        <div>
+          <h2 class="as-title">
+            <i class="fa-solid fa-basket-shopping text-success"></i>
+            Agrovet Sales
+          </h2>
+          <div class="as-sub">
+            Sales history for feeds, medicines, supplements and livestock products.
+          </div>
+        </div>
+
+        <a href="{% url 'agrovet:sale_create' %}" class="as-btn">
+          <i class="fa-solid fa-plus"></i>
+          New Sale
+        </a>
+      </div>
+    </div>
+
+    <div class="as-body">
+
+      <form method="get" class="as-filter">
+        <div class="row g-3 align-items-end">
+          {% if branches %}
+          <div class="col-12 col-md-3">
+            <label class="as-label">Branch</label>
+            <select name="branch" class="form-select as-control">
+              <option value="">All Branches</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}" {% if selected_branch == b.id|stringformat:"s" %}selected{% endif %}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+
+          <div class="col-12 col-md-5">
+            <label class="as-label">Search</label>
+            <input
+              type="text"
+              name="q"
+              value="{{ query }}"
+              class="form-control as-control"
+              placeholder="Search item, category, customer or phone..."
+            >
+          </div>
+
+          <div class="col-12 col-md-2">
+            <button class="as-btn w-100" type="submit">
+              <i class="fa-solid fa-filter"></i>
+              Filter
+            </button>
+          </div>
+
+          <div class="col-12 col-md-2">
+            <a href="{% url 'agrovet:sale_list' %}" class="as-btn-light w-100">
+              <i class="fa-solid fa-rotate-left"></i>
+              Reset
+            </a>
+          </div>
+        </div>
+      </form>
+
+      <div class="as-table-wrap">
+        {% if sales %}
+        <table class="as-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Item</th>
+              <th>Customer</th>
+              <th>Payment</th>
+              <th class="text-end">Qty</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Profit</th>
+              <th class="text-end">Balance</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in sales %}
+            <tr>
+              <td>
+                <div class="as-item">{{ s.sold_at|date:"Y-m-d" }}</div>
+                <div class="as-meta">{{ s.sold_at|date:"H:i" }}</div>
+              </td>
+
+              <td>
+                <div class="as-item">{{ s.item_name }}</div>
+                <div class="as-meta">
+                  {{ s.category|default:"-" }}
+                  {% if s.unit %} • {{ s.unit }}{% endif %}
+                  {% if s.branch %} • {{ s.branch.name }}{% endif %}
+                </div>
+              </td>
+
+              <td>
+                <div class="as-item">
+                  {% if s.customer %}
+                    {{ s.customer.name|default:"Walk-in" }}
+                  {% else %}
+                    Walk-in
+                  {% endif %}
+                </div>
+                <div class="as-meta">
+                  {% if s.customer and s.customer.phone %}
+                    {{ s.customer.phone }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </div>
+              </td>
+
+              <td>
+                <span class="as-badge {{ s.payment_method }}">
+                  {{ s.payment_method }}
+                </span>
+              </td>
+
+              <td class="text-end">
+                <span class="as-money">{{ s.quantity|floatformat:0|intcomma }}</span>
+              </td>
+
+              <td class="text-end">
+                <span class="as-money">Tsh {{ s.total_selling|floatformat:0|intcomma }}</span>
+              </td>
+
+              <td class="text-end">
+                <span class="as-money as-profit">Tsh {{ s.profit|floatformat:0|intcomma }}</span>
+              </td>
+
+              <td class="text-end">
+                <span class="as-money as-balance">Tsh {{ s.balance|floatformat:0|intcomma }}</span>
+              </td>
+
+              <td class="text-end">
+                <a href="{% url 'agrovet:sale_detail' s.id %}" class="as-view">
+                  <i class="fa-solid fa-eye"></i>
+                  View
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="as-empty">
+          <i class="fa-regular fa-face-frown"></i>
+          <h6>No sales found</h6>
+          <p>Try changing the branch or search filter.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if page_obj.has_other_pages %}
+      <div class="as-pagination">
+        <nav aria-label="Sales pagination">
+          <ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                  Previous
+                </a>
+              </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span class="page-link">{{ page_obj.number }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                  Next
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

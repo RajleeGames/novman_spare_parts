@@ -1,0 +1,664 @@
+{# templates/sales/enhanced_sales_report.html #}
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Enhanced Sales Report — Kilasi Investment{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --er-bg:#f8fafc;
+    --er-card:#ffffff;
+    --er-line:#e2e8f0;
+    --er-line-soft:#eef2f7;
+    --er-text:#0f172a;
+    --er-muted:#64748b;
+    --er-primary:#2563eb;
+    --er-primary-soft:rgba(37,99,235,.08);
+    --er-success:#16a34a;
+    --er-warning:#f59e0b;
+    --er-danger:#dc2626;
+    --er-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .er-wrap{
+    max-width:1180px;
+    margin:1rem auto 1.5rem;
+    padding:0 .85rem;
+    color:var(--er-text);
+  }
+
+  .er-hero{
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    border:1px solid var(--er-line);
+    border-radius:20px;
+    box-shadow:var(--er-shadow);
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+  }
+
+  .er-hero-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.8rem;
+  }
+
+  .er-title{
+    margin:0;
+    font-size:1.06rem;
+    font-weight:700;
+    letter-spacing:-.02em;
+    color:var(--er-text);
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .er-sub{
+    font-size:.75rem;
+    color:var(--er-muted);
+    margin:.22rem 0 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    align-items:center;
+  }
+
+  .er-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.38rem;
+    padding:.32rem .62rem;
+    border-radius:999px;
+    background:var(--er-primary-soft);
+    color:var(--er-primary);
+    font-size:.72rem;
+    font-weight:600;
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .er-badge.soft{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--er-line);
+  }
+
+  .er-link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    height:38px;
+    padding:0 .85rem;
+    border-radius:12px;
+    border:1px solid var(--er-line);
+    background:#fff;
+    color:#334155;
+    text-decoration:none;
+    font-size:.74rem;
+    font-weight:700;
+  }
+
+  .er-link-btn:hover{
+    color:var(--er-text);
+    border-color:#cbd5e1;
+  }
+
+  .er-filter-card,
+  .er-chart-card,
+  .er-summary-card{
+    background:var(--er-card);
+    border:1px solid var(--er-line);
+    border-radius:20px;
+    box-shadow:var(--er-shadow);
+    overflow:hidden;
+  }
+
+  .er-filter-card{
+    margin-bottom:1rem;
+  }
+
+  .er-filter-body{
+    padding:1rem;
+  }
+
+  .er-field label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.71rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .er-control{
+    width:100%;
+    height:40px;
+    border-radius:12px;
+    border:1px solid var(--er-line);
+    background:#fff;
+    color:var(--er-text);
+    font-size:.78rem;
+    box-shadow:none !important;
+  }
+
+  .er-control:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .er-help{
+    margin-top:.25rem;
+    font-size:.68rem;
+    color:var(--er-muted);
+  }
+
+  .er-btn,
+  .er-btn-light{
+    height:40px;
+    border:none;
+    border-radius:12px;
+    padding:0 .95rem;
+    font-size:.77rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.42rem;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+
+  .er-btn{
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+  }
+
+  .er-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .er-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--er-line);
+  }
+
+  .er-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .er-card-head{
+    padding:.92rem 1rem 0;
+  }
+
+  .er-card-title{
+    margin:0;
+    font-size:.84rem;
+    font-weight:700;
+    color:var(--er-text);
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .er-card-sub{
+    margin-top:.18rem;
+    color:var(--er-muted);
+    font-size:.71rem;
+  }
+
+  .er-card-body{
+    padding:1rem;
+  }
+
+  .er-chart-box{
+    height:270px;
+  }
+
+  .er-summary-top{
+    padding:.92rem 1rem 0;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.7rem;
+  }
+
+  .er-summary-grid{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    gap:1rem;
+    align-items:center;
+  }
+
+  .er-mini{
+    padding:.9rem;
+    border-radius:16px;
+    border:1px solid var(--er-line);
+    background:#f8fafc;
+  }
+
+  .er-mini-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.8rem;
+    font-size:.78rem;
+    padding:.18rem 0;
+  }
+
+  .er-mini-row strong{
+    font-variant-numeric:tabular-nums;
+  }
+
+  .er-status{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.28rem .56rem;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:700;
+    border:1px solid transparent;
+  }
+
+  .er-status.profit{
+    background:rgba(22,163,74,.08);
+    color:var(--er-success);
+    border-color:rgba(22,163,74,.14);
+  }
+
+  .er-status.loss{
+    background:rgba(220,38,38,.08);
+    color:var(--er-danger);
+    border-color:rgba(220,38,38,.14);
+  }
+
+  @media(max-width:991px){
+    .er-summary-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media(max-width:768px){
+    .er-wrap{
+      padding:0 .7rem;
+    }
+
+    .er-hero,
+    .er-filter-body,
+    .er-card-body{
+      padding:.9rem;
+    }
+
+    .er-card-head,
+    .er-summary-top{
+      padding:.9rem .9rem 0;
+    }
+
+    .er-chart-box{
+      height:240px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="er-wrap">
+
+  <div class="er-hero">
+    <div class="er-hero-top">
+      <div>
+        <h2 class="er-title">
+          <i class="fa-solid fa-chart-line text-primary"></i>
+          Enhanced Sales Report
+        </h2>
+
+        <p class="er-sub">
+          <span class="er-badge">
+            <i class="fa-solid fa-chart-pie"></i>
+            Sales performance charts
+          </span>
+
+          {% if selected_branch_obj %}
+            <span class="er-badge soft">
+              <i class="fa-solid fa-building"></i>
+              {{ selected_branch_obj.name }}
+            </span>
+          {% else %}
+            <span class="er-badge soft">
+              <i class="fa-solid fa-layer-group"></i>
+              All branches
+            </span>
+          {% endif %}
+        </p>
+      </div>
+
+      <div>
+        <a href="{% url 'sales:enhanced_sales_report' %}" class="er-link-btn">
+          <i class="fa-solid fa-rotate-left"></i>
+          Reset
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="er-filter-card">
+    <div class="er-filter-body">
+      <form method="get" class="row g-3 align-items-end">
+        {% if branches %}
+        <div class="col-12 col-md-3">
+          <div class="er-field">
+            <label>Branch</label>
+            <select name="branch" class="form-select er-control">
+              <option value="">All Branches</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="col-12 col-md-3">
+          <div class="er-field">
+            <label>Specific Date</label>
+            <input type="date" name="date" value="{{ date_filter }}" class="form-control er-control">
+            <div class="er-help">If set, daily chart focuses on that date.</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="er-field">
+            <label>Monthly Filter</label>
+            <select name="month" class="form-select er-control">
+              <option value="">All Months</option>
+              {% for m, label in month_choices %}
+                <option value="{{ m }}" {% if month_filter|stringformat:"s" == m|stringformat:"s" %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="er-field">
+            <label>Year Filter</label>
+            <select name="year" class="form-select er-control">
+              <option value="">All Years</option>
+              {% for y in year_choices %}
+                <option value="{{ y }}" {% if year_filter|stringformat:"s" == y|stringformat:"s" %}selected{% endif %}>
+                  {{ y }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2 flex-wrap">
+          <button class="er-btn">
+            <i class="fa-solid fa-filter"></i>
+            Apply
+          </button>
+
+          <a href="{% url 'sales:enhanced_sales_report' %}{% if selected_branch %}?branch={{ selected_branch }}{% endif %}"
+             class="er-btn-light">
+            <i class="fa-solid fa-rotate-left"></i>
+            Reset Charts
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <div class="col-lg-6">
+      <div class="er-chart-card h-100">
+        <div class="er-card-head">
+          <h6 class="er-card-title"><i class="fa-solid fa-calendar-day"></i> Daily Sales</h6>
+          <div class="er-card-sub">Short-term daily sales trend</div>
+        </div>
+        <div class="er-card-body">
+          <div class="er-chart-box"><canvas id="dailySalesChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="er-chart-card h-100">
+        <div class="er-card-head">
+          <h6 class="er-card-title"><i class="fa-solid fa-calendar-week"></i> Weekly Sales</h6>
+          <div class="er-card-sub">Last 12 weeks performance</div>
+        </div>
+        <div class="er-card-body">
+          <div class="er-chart-box"><canvas id="weeklySalesChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="er-chart-card h-100">
+        <div class="er-card-head">
+          <h6 class="er-card-title"><i class="fa-solid fa-calendar"></i> Monthly Sales</h6>
+          <div class="er-card-sub">Last 12 months trend</div>
+        </div>
+        <div class="er-card-body">
+          <div class="er-chart-box"><canvas id="monthlySalesChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="er-chart-card h-100">
+        <div class="er-card-head">
+          <h6 class="er-card-title"><i class="fa-solid fa-chart-column"></i> Yearly Sales</h6>
+          <div class="er-card-sub">Year-over-year view</div>
+        </div>
+        <div class="er-card-body">
+          <div class="er-chart-box"><canvas id="yearlySalesChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="er-summary-card mt-3">
+    <div class="er-summary-top">
+      <div>
+        <h6 class="er-card-title"><i class="fa-solid fa-scale-balanced"></i> Income vs Expenses vs Profit</h6>
+        <div class="er-card-sub">
+          Income = Cash/Bank + Debt Payments
+          {% if profit_is_negative %}
+            <span class="er-status loss ms-2">LOSS</span>
+          {% else %}
+            <span class="er-status profit ms-2">PROFIT</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <form method="get" class="d-flex gap-2 flex-wrap">
+        {% if selected_branch %}<input type="hidden" name="branch" value="{{ selected_branch }}">{% endif %}
+        {% if date_filter %}<input type="hidden" name="date" value="{{ date_filter }}">{% endif %}
+        {% if month_filter %}<input type="hidden" name="month" value="{{ month_filter }}">{% endif %}
+        {% if year_filter %}<input type="hidden" name="year" value="{{ year_filter }}">{% endif %}
+
+        <select name="doughnut_month" class="form-select er-control" style="min-width:160px;">
+          {% for m, label in month_choices %}
+            <option value="{{ m }}" {% if doughnut_month|stringformat:"s" == m|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="doughnut_year" class="form-select er-control" style="min-width:120px;">
+          {% for y in year_choices %}
+            <option value="{{ y }}" {% if doughnut_year|stringformat:"s" == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+
+        <button class="er-btn" type="submit">
+          <i class="fa-solid fa-filter"></i>
+          Filter
+        </button>
+      </form>
+    </div>
+
+    <div class="er-card-body">
+      <div class="er-summary-grid">
+        <div class="er-mini">
+          <div class="er-mini-row">
+            <span class="text-muted">Income</span>
+            <strong>Tsh {{ doughnut_sales_total|floatformat:0|intcomma }}</strong>
+          </div>
+          <div class="er-mini-row">
+            <span class="text-muted">Expenses</span>
+            <strong>Tsh {{ doughnut_total_expenses|floatformat:0|intcomma }}</strong>
+          </div>
+          <hr>
+          <div class="er-mini-row">
+            <span class="text-muted">Net</span>
+            <strong>
+              Tsh {{ doughnut_net_profit|floatformat:0|intcomma }}
+              {% if profit_is_negative %}<span class="text-danger ms-1">(Loss)</span>{% endif %}
+            </strong>
+          </div>
+        </div>
+
+        <div>
+          <div class="er-chart-box" style="height:280px;"><canvas id="profitExpensesChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script id="daily-sales-data"   type="application/json">{{ daily_sales_json|escapejs }}</script>
+<script id="weekly-sales-data"  type="application/json">{{ weekly_sales_json|escapejs }}</script>
+<script id="monthly-sales-data" type="application/json">{{ monthly_sales_json|escapejs }}</script>
+<script id="yearly-sales-data"  type="application/json">{{ yearly_sales_json|escapejs }}</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function safeJSON(id){
+    try {
+      const el = document.getElementById(id);
+      const raw = (el && el.textContent) ? el.textContent : "[]";
+      const cleaned = raw
+        .replace(/\u0022/g, '"')
+        .replace(/\\u0022/g, '"')
+        .replace(/\\n/g, '')
+        .replace(/\\t/g, '')
+        .replace(/\\r/g, '');
+      return JSON.parse(cleaned || "[]");
+    } catch(e) {
+      return [];
+    }
+  }
+
+  function nf(v){
+    try { return Number(v || 0).toLocaleString(); }
+    catch(e){ return v; }
+  }
+
+  const dailyData   = safeJSON('daily-sales-data');
+  const weeklyData  = safeJSON('weekly-sales-data');
+  const monthlyData = safeJSON('monthly-sales-data');
+  const yearlyData  = safeJSON('yearly-sales-data');
+
+  const doughnutIncome  = Number("{{ doughnut_sales_total|default:0 }}") || 0;
+  const doughnutExpense = Number("{{ doughnut_total_expenses|default:0 }}") || 0;
+  const doughnutNet     = Number("{{ doughnut_net_profit|default:0 }}") || 0;
+
+  const isLoss = ("{{ profit_is_negative|yesno:'true,false' }}" === "true");
+  const netAbs = Math.abs(doughnutNet);
+
+  const commonOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const val = (ctx.parsed && typeof ctx.parsed === "object") ? (ctx.parsed.y ?? 0) : (ctx.parsed ?? 0);
+            return `${ctx.dataset.label || 'Value'}: Tsh ${nf(val)}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: (value) => nf(value) }
+      }
+    }
+  };
+
+  function makeLine(ctx, labels, data, label){
+    return new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{ label, data, tension: 0.35, fill: true }]},
+      options: commonOpts
+    });
+  }
+
+  function makeBar(ctx, labels, data, label){
+    return new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label, data }]},
+      options: commonOpts
+    });
+  }
+
+  const dailyLabels  = dailyData.map(i => i.day);
+  const dailyTotals  = dailyData.map(i => Number(i.total || 0));
+  if (document.getElementById('dailySalesChart')) {
+    makeLine(document.getElementById('dailySalesChart').getContext('2d'), dailyLabels, dailyTotals, 'Sales');
+  }
+
+  const weeklyLabels = weeklyData.map(i => i.week);
+  const weeklyTotals = weeklyData.map(i => Number(i.total || 0));
+  if (document.getElementById('weeklySalesChart')) {
+    makeBar(document.getElementById('weeklySalesChart').getContext('2d'), weeklyLabels, weeklyTotals, 'Sales');
+  }
+
+  const monthlyLabels = monthlyData.map(i => `${i.month}/${i.year}`);
+  const monthlyTotals = monthlyData.map(i => Number(i.total || 0));
+  if (document.getElementById('monthlySalesChart')) {
+    makeLine(document.getElementById('monthlySalesChart').getContext('2d'), monthlyLabels, monthlyTotals, 'Sales');
+  }
+
+  const yearlyLabels = yearlyData.map(i => String(i.year));
+  const yearlyTotals = yearlyData.map(i => Number(i.total || 0));
+  if (document.getElementById('yearlySalesChart')) {
+    makeBar(document.getElementById('yearlySalesChart').getContext('2d'), yearlyLabels, yearlyTotals, 'Sales');
+  }
+
+  const doughnutLabels = isLoss ? ['Income','Expenses','Loss'] : ['Income','Expenses','Profit'];
+  const doughnutData   = [doughnutIncome, doughnutExpense, netAbs];
+
+  if (document.getElementById('profitExpensesChart')) {
+    new Chart(document.getElementById('profitExpensesChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: doughnutLabels, datasets: [{ data: doughnutData }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: Tsh ${nf(ctx.parsed)}` } }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

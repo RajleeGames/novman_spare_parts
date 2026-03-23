@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}Delete Transfer — Kilasi Investment{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --del-card:#ffffff;
+    --del-text:#0f172a;
+    --del-muted:#64748b;
+    --del-line:#e2e8f0;
+    --del-danger:#dc2626;
+    --del-danger-dark:#b91c1c;
+    --del-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .del-wrap{
+    max-width:680px;
+    margin:1.2rem auto 2rem;
+    padding:0 .9rem;
+  }
+
+  .del-card{
+    background:var(--del-card);
+    border:1px solid var(--del-line);
+    border-radius:20px;
+    box-shadow:var(--del-shadow);
+    overflow:hidden;
+  }
+
+  .del-head{
+    padding:1rem 1rem .9rem;
+    border-bottom:1px solid var(--del-line);
+    background:linear-gradient(180deg,#fff,#f8fafc);
+  }
+
+  .del-title{
+    margin:0;
+    font-size:1rem;
+    font-weight:800;
+    color:var(--del-text);
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .del-sub{
+    margin:.35rem 0 0;
+    font-size:.78rem;
+    color:var(--del-muted);
+  }
+
+  .del-body{
+    padding:1rem;
+  }
+
+  .del-box{
+    border:1px solid #fecaca;
+    background:#fef2f2;
+    border-radius:16px;
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .del-box h6{
+    margin:0 0 .45rem;
+    font-size:.86rem;
+    font-weight:800;
+    color:var(--del-danger-dark);
+  }
+
+  .del-box p{
+    margin:0;
+    font-size:.78rem;
+    color:#7f1d1d;
+    line-height:1.55;
+  }
+
+  .del-meta{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:.8rem;
+    margin-top:.9rem;
+  }
+
+  .del-item{
+    border:1px solid var(--del-line);
+    border-radius:14px;
+    padding:.85rem;
+    background:#fff;
+  }
+
+  .del-label{
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--del-muted);
+    font-weight:700;
+    margin-bottom:.25rem;
+  }
+
+  .del-value{
+    font-size:.82rem;
+    font-weight:700;
+    color:var(--del-text);
+  }
+
+  .del-actions{
+    display:flex;
+    gap:.7rem;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    margin-top:1rem;
+  }
+
+  .del-btn,
+  .del-btn-light{
+    height:42px;
+    padding:0 1rem;
+    border-radius:12px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    text-decoration:none;
+    font-size:.78rem;
+    font-weight:800;
+  }
+
+  .del-btn{
+    border:none;
+    background:linear-gradient(135deg,var(--del-danger),#ef4444);
+    color:#fff;
+  }
+
+  .del-btn:hover{
+    color:#fff;
+    background:linear-gradient(135deg,var(--del-danger-dark),#dc2626);
+  }
+
+  .del-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--del-line);
+  }
+
+  .del-btn-light:hover{
+    color:#0f172a;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="del-wrap">
+  <div class="del-card">
+    <div class="del-head">
+      <h2 class="del-title">
+        <i class="fa-solid fa-trash text-danger"></i>
+        Delete Stock Transfer
+      </h2>
+      <div class="del-sub">
+        Confirm before permanently deleting this draft transfer.
+      </div>
+    </div>
+
+    <div class="del-body">
+      <div class="del-box">
+        <h6>Warning</h6>
+        <p>
+          This action will permanently remove transfer <strong>#{{ transfer.id }}</strong>.
+          Only draft transfers should be deleted.
+        </p>
+      </div>
+
+      <div class="del-meta">
+        <div class="del-item">
+          <div class="del-label">Transfer</div>
+          <div class="del-value">#{{ transfer.id }}</div>
+        </div>
+
+        <div class="del-item">
+          <div class="del-label">Route</div>
+          <div class="del-value">{{ transfer.from_branch.name }} → {{ transfer.to_branch.name }}</div>
+        </div>
+
+        <div class="del-item">
+          <div class="del-label">Status</div>
+          <div class="del-value">{{ transfer.status|upper }}</div>
+        </div>
+
+        <div class="del-item">
+          <div class="del-label">Created By</div>
+          <div class="del-value">{{ transfer.created_by.username }}</div>
+        </div>
+      </div>
+
+      <form method="post" class="del-actions">
+        {% csrf_token %}
+        <a href="{% url 'sales:stock_transfer_detail' transfer.id %}" class="del-btn-light">
+          <i class="fa-solid fa-arrow-left"></i>
+          Cancel
+        </a>
+        <button type="submit" class="del-btn">
+          <i class="fa-solid fa-trash"></i>
+          Yes, Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

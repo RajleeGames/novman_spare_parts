@@ -1,0 +1,1258 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Agrovet Dashboard — Nova Auto Spare Parts{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --ag-bg:#f8fafc;
+    --ag-card:#ffffff;
+    --ag-text:#0f172a;
+    --ag-muted:#64748b;
+    --ag-line:#e2e8f0;
+    --ag-line-soft:#eef2f7;
+    --ag-primary:#16a34a;
+    --ag-blue:#2563eb;
+    --ag-amber:#f59e0b;
+    --ag-red:#dc2626;
+    --ag-purple:#7c3aed;
+    --ag-cyan:#0891b2;
+    --ag-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .ag-wrap{
+    max-width:1380px;
+    margin:1rem auto 1.2rem;
+    padding:0 .85rem;
+    color:var(--ag-text);
+  }
+
+  .ag-hero{
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(22,163,74,.12), transparent 55%),
+      linear-gradient(180deg,#ffffff,#fbfffc);
+    border:1px solid var(--ag-line);
+    border-radius:24px;
+    box-shadow:var(--ag-shadow);
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-hero-top{
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    flex-wrap:wrap;
+    align-items:flex-start;
+  }
+
+  .ag-title{
+    margin:0;
+    font-size:1.1rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .ag-sub{
+    margin:.22rem 0 0;
+    color:var(--ag-muted);
+    font-size:.78rem;
+    line-height:1.5;
+    max-width:760px;
+  }
+
+  .ag-hero-actions{
+    display:flex;
+    gap:.6rem;
+    flex-wrap:wrap;
+  }
+
+  .ag-btn,
+  .ag-btn-light{
+    min-height:40px;
+    padding:.65rem .95rem;
+    border-radius:12px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    font-size:.77rem;
+    font-weight:800;
+    transition:.18s ease;
+    white-space:nowrap;
+    border:none;
+  }
+
+  .ag-btn{
+    color:#fff;
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+  }
+
+  .ag-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .ag-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--ag-line);
+  }
+
+  .ag-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .ag-filter{
+    background:var(--ag-card);
+    border:1px solid var(--ag-line);
+    border-radius:18px;
+    box-shadow:var(--ag-shadow);
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.68rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .ag-control{
+    height:42px;
+    border-radius:12px;
+    border:1px solid var(--ag-line);
+    font-size:.78rem;
+    box-shadow:none !important;
+  }
+
+  .ag-control:focus{
+    border-color:rgba(22,163,74,.38);
+    box-shadow:0 0 0 .18rem rgba(22,163,74,.10) !important;
+  }
+
+  .ag-profit-banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:1rem;
+    border-radius:18px;
+    margin-bottom:1rem;
+    border:1px solid var(--ag-line);
+    background:
+      radial-gradient(700px 220px at 0% 0%, rgba(37,99,235,.08), transparent 60%),
+      linear-gradient(180deg,#ffffff,#fbfdff);
+    box-shadow:var(--ag-shadow);
+    flex-wrap:wrap;
+  }
+
+  .ag-profit-title{
+    margin:0;
+    font-size:.92rem;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .ag-profit-sub{
+    margin:.18rem 0 0;
+    color:var(--ag-muted);
+    font-size:.76rem;
+  }
+
+  .ag-profit-amount{
+    font-size:1.35rem;
+    font-weight:900;
+    letter-spacing:-.03em;
+    word-break:break-word;
+  }
+
+  .ag-status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.38rem .62rem;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:800;
+    border:1px solid transparent;
+  }
+
+  .ag-status-pill.profit{
+    color:#166534;
+    background:rgba(22,163,74,.10);
+    border-color:rgba(22,163,74,.18);
+  }
+
+  .ag-status-pill.loss{
+    color:#b91c1c;
+    background:rgba(220,38,38,.10);
+    border-color:rgba(220,38,38,.18);
+  }
+
+  .ag-status-pill.breakeven{
+    color:#92400e;
+    background:rgba(245,158,11,.12);
+    border-color:rgba(245,158,11,.18);
+  }
+
+  .ag-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-card{
+    background:var(--ag-card);
+    border:1px solid var(--ag-line);
+    border-radius:20px;
+    box-shadow:var(--ag-shadow);
+    padding:1rem;
+    min-width:0;
+  }
+
+  .ag-stat{
+    position:relative;
+    overflow:hidden;
+  }
+
+  .ag-stat::after{
+    content:"";
+    position:absolute;
+    right:-16px;
+    top:-16px;
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:rgba(255,255,255,.5);
+  }
+
+  .ag-stat.green{ background:linear-gradient(180deg,#ffffff,#f7fff9); }
+  .ag-stat.blue{ background:linear-gradient(180deg,#ffffff,#f8fbff); }
+  .ag-stat.amber{ background:linear-gradient(180deg,#ffffff,#fffaf2); }
+  .ag-stat.red{ background:linear-gradient(180deg,#ffffff,#fff8f8); }
+
+  .ag-stat-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.7rem;
+    margin-bottom:.7rem;
+  }
+
+  .ag-stat-label{
+    font-size:.71rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .ag-stat-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.92rem;
+    flex-shrink:0;
+  }
+
+  .ag-stat.green .ag-stat-icon{ background:rgba(22,163,74,.10); color:#16a34a; }
+  .ag-stat.blue .ag-stat-icon{ background:rgba(37,99,235,.10); color:#2563eb; }
+  .ag-stat.amber .ag-stat-icon{ background:rgba(245,158,11,.12); color:#d97706; }
+  .ag-stat.red .ag-stat-icon{ background:rgba(220,38,38,.10); color:#dc2626; }
+
+  .ag-stat-value{
+    font-size:1.18rem;
+    font-weight:900;
+    line-height:1.1;
+    letter-spacing:-.03em;
+    margin-bottom:.2rem;
+    word-break:break-word;
+  }
+
+  .ag-stat-meta{
+    font-size:.73rem;
+    color:var(--ag-muted);
+  }
+
+  .ag-charts-grid{
+    display:grid;
+    grid-template-columns:1.35fr 1fr;
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-charts-grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-summary-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .ag-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.8rem;
+    margin-bottom:.85rem;
+    flex-wrap:wrap;
+  }
+
+  .ag-head h3{
+    margin:0;
+    font-size:.88rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    min-width:0;
+  }
+
+  .ag-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.32rem .58rem;
+    border-radius:999px;
+    font-size:.68rem;
+    font-weight:700;
+    color:#475569;
+    background:#f8fafc;
+    border:1px solid var(--ag-line);
+    max-width:100%;
+  }
+
+  .ag-chart-shell{
+    position:relative;
+    width:100%;
+    overflow:hidden;
+  }
+
+  .ag-chart-box{
+    position:relative;
+    width:100%;
+    height:320px;
+  }
+
+  .ag-chart-box.sm{
+    height:280px;
+  }
+
+  .ag-chart-box.xs{
+    height:260px;
+  }
+
+  .ag-finance-list{
+    display:grid;
+    gap:.75rem;
+  }
+
+  .ag-finance-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.8rem .9rem;
+    border:1px solid var(--ag-line-soft);
+    border-radius:15px;
+    background:linear-gradient(180deg,#fff,#fbfcfd);
+  }
+
+  .ag-finance-left{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    min-width:0;
+  }
+
+  .ag-finance-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.9rem;
+    flex-shrink:0;
+  }
+
+  .ag-finance-row.sales .ag-finance-icon{
+    color:#16a34a;
+    background:rgba(22,163,74,.10);
+  }
+
+  .ag-finance-row.profit .ag-finance-icon{
+    color:#2563eb;
+    background:rgba(37,99,235,.10);
+  }
+
+  .ag-finance-row.expense .ag-finance-icon{
+    color:#dc2626;
+    background:rgba(220,38,38,.10);
+  }
+
+  .ag-finance-name{
+    margin:0;
+    font-size:.8rem;
+    font-weight:800;
+    color:#0f172a;
+  }
+
+  .ag-finance-meta{
+    margin:.12rem 0 0;
+    font-size:.72rem;
+    color:var(--ag-muted);
+  }
+
+  .ag-finance-value{
+    font-size:.82rem;
+    font-weight:900;
+    text-align:right;
+    white-space:nowrap;
+  }
+
+  .ag-empty{
+    text-align:center;
+    color:var(--ag-muted);
+    padding:1.4rem .8rem;
+    border:1px dashed var(--ag-line);
+    border-radius:16px;
+    background:#fff;
+  }
+
+  @media (max-width:1100px){
+    .ag-grid{
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+    .ag-charts-grid,
+    .ag-charts-grid-2,
+    .ag-summary-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media (max-width:768px){
+    .ag-wrap{
+      padding:0 .7rem;
+      margin:.8rem auto 1rem;
+    }
+
+    .ag-hero,
+    .ag-filter,
+    .ag-card{
+      padding:.9rem;
+      border-radius:18px;
+    }
+
+    .ag-hero-top{
+      flex-direction:column;
+      align-items:stretch;
+    }
+
+    .ag-hero-actions{
+      width:100%;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:.55rem;
+    }
+
+    .ag-btn,
+    .ag-btn-light{
+      width:100%;
+      min-height:42px;
+      font-size:.75rem;
+      padding:.72rem .8rem;
+    }
+
+    .ag-grid{
+      grid-template-columns:1fr;
+      gap:.8rem;
+    }
+
+    .ag-title{
+      font-size:1rem;
+    }
+
+    .ag-sub{
+      font-size:.74rem;
+    }
+
+    .ag-stat-value{
+      font-size:1.02rem;
+    }
+
+    .ag-profit-amount{
+      font-size:1.05rem;
+    }
+
+    .ag-chart-box{
+      height:250px;
+    }
+
+    .ag-chart-box.sm{
+      height:220px;
+    }
+
+    .ag-chart-box.xs{
+      height:220px;
+    }
+
+    .ag-head{
+      gap:.5rem;
+      margin-bottom:.7rem;
+    }
+
+    .ag-head h3{
+      font-size:.82rem;
+    }
+
+    .ag-chip{
+      font-size:.64rem;
+      padding:.25rem .45rem;
+    }
+
+    .ag-finance-row{
+      padding:.72rem;
+    }
+
+    .ag-finance-value{
+      font-size:.78rem;
+    }
+
+    .ag-profit-banner{
+      padding:.9rem;
+    }
+  }
+
+  @media (max-width:480px){
+    .ag-wrap{
+      padding:0 .55rem;
+    }
+
+    .ag-hero-actions{
+      grid-template-columns:1fr;
+    }
+
+    .ag-label{
+      font-size:.64rem;
+    }
+
+    .ag-control{
+      font-size:.75rem;
+      height:40px;
+    }
+
+    .ag-stat-icon,
+    .ag-finance-icon{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      font-size:.82rem;
+    }
+
+    .ag-chart-box{
+      height:220px;
+    }
+
+    .ag-chart-box.sm,
+    .ag-chart-box.xs{
+      height:205px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ag-wrap">
+
+  <div class="ag-hero">
+    <div class="ag-hero-top">
+      <div>
+        <h2 class="ag-title">
+          <i class="fa-solid fa-seedling text-success"></i>
+          Agrovet Dashboard
+        </h2>
+        <div class="ag-sub">
+          Manage livestock feeds, medicines, supplements, agrovet sales and daily expenses in one place.
+        </div>
+      </div>
+
+      <div class="ag-hero-actions">
+        <a href="{% url 'agrovet:sale_create' %}" class="ag-btn">
+          <i class="fa-solid fa-plus"></i>
+          New Sale
+        </a>
+        <a href="{% url 'agrovet:expense_create' %}" class="ag-btn-light">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          Add Expense
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ag-filter">
+    <form method="get" class="row g-3 align-items-end">
+      {% if branches %}
+      <div class="col-12 col-md-3">
+        <label class="ag-label">Branch</label>
+        <select name="branch" class="form-select ag-control">
+          <option value="">All Branches</option>
+          {% for b in branches %}
+            <option value="{{ b.id }}" {% if selected_branch == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="col-12 col-md-2">
+        <label class="ag-label">View Mode</label>
+        <select name="mode" class="form-select ag-control" id="modeSelect">
+          <option value="day" {% if range_mode == "day" %}selected{% endif %}>Day</option>
+          <option value="month" {% if range_mode == "month" %}selected{% endif %}>Month</option>
+          <option value="year" {% if range_mode == "year" %}selected{% endif %}>Year</option>
+          <option value="custom" {% if range_mode == "custom" %}selected{% endif %}>Custom Range</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2" id="monthWrap">
+        <label class="ag-label">Month</label>
+        <select name="month" class="form-select ag-control">
+          <option value="1" {% if selected_month|stringformat:"s" == "1" %}selected{% endif %}>1</option>
+          <option value="2" {% if selected_month|stringformat:"s" == "2" %}selected{% endif %}>2</option>
+          <option value="3" {% if selected_month|stringformat:"s" == "3" %}selected{% endif %}>3</option>
+          <option value="4" {% if selected_month|stringformat:"s" == "4" %}selected{% endif %}>4</option>
+          <option value="5" {% if selected_month|stringformat:"s" == "5" %}selected{% endif %}>5</option>
+          <option value="6" {% if selected_month|stringformat:"s" == "6" %}selected{% endif %}>6</option>
+          <option value="7" {% if selected_month|stringformat:"s" == "7" %}selected{% endif %}>7</option>
+          <option value="8" {% if selected_month|stringformat:"s" == "8" %}selected{% endif %}>8</option>
+          <option value="9" {% if selected_month|stringformat:"s" == "9" %}selected{% endif %}>9</option>
+          <option value="10" {% if selected_month|stringformat:"s" == "10" %}selected{% endif %}>10</option>
+          <option value="11" {% if selected_month|stringformat:"s" == "11" %}selected{% endif %}>11</option>
+          <option value="12" {% if selected_month|stringformat:"s" == "12" %}selected{% endif %}>12</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2" id="yearWrap">
+        <label class="ag-label">Year</label>
+        <input type="number" name="year" value="{{ selected_year }}" class="form-control ag-control" min="2020" max="2100">
+      </div>
+
+      <div class="col-6 col-md-2" id="dateFromWrap">
+        <label class="ag-label">From</label>
+        <input type="date" name="date_from" value="{{ date_from }}" class="form-control ag-control">
+      </div>
+
+      <div class="col-6 col-md-2" id="dateToWrap">
+        <label class="ag-label">To</label>
+        <input type="date" name="date_to" value="{{ date_to }}" class="form-control ag-control">
+      </div>
+
+      <div class="col-12 col-md-2">
+        <button class="ag-btn w-100" type="submit">
+          <i class="fa-solid fa-filter"></i>
+          Apply
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="ag-profit-banner">
+    <div>
+      <h3 class="ag-profit-title">
+        <i class="fa-solid fa-scale-balanced text-primary"></i>
+        Profit / Loss Overview
+      </h3>
+      <p class="ag-profit-sub">{{ range_label }} financial result after expenses</p>
+    </div>
+
+    <div class="text-md-end">
+      <div class="ag-profit-amount {% if net < 0 %}text-danger{% elif net > 0 %}text-success{% else %}text-warning{% endif %}">
+        Tsh {{ net|floatformat:0|intcomma }}
+      </div>
+
+      {% if net > 0 %}
+        <span class="ag-status-pill profit">
+          <i class="fa-solid fa-arrow-trend-up"></i> Profit
+        </span>
+      {% elif net < 0 %}
+        <span class="ag-status-pill loss">
+          <i class="fa-solid fa-arrow-trend-down"></i> Loss
+        </span>
+      {% else %}
+        <span class="ag-status-pill breakeven">
+          <i class="fa-solid fa-equals"></i> Break Even
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ag-grid">
+    <div class="ag-card ag-stat green">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Sales</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+      </div>
+      <div class="ag-stat-value">Tsh {{ total_sales|floatformat:0|intcomma }}</div>
+      <div class="ag-stat-meta">{{ range_label }} total selling amount</div>
+    </div>
+
+    <div class="ag-card ag-stat blue">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Gross Profit</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+      </div>
+      <div class="ag-stat-value">Tsh {{ total_profit|floatformat:0|intcomma }}</div>
+      <div class="ag-stat-meta">Selling price minus buying cost</div>
+    </div>
+
+    <div class="ag-card ag-stat amber">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Expenses</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+      </div>
+      <div class="ag-stat-value">Tsh {{ total_expenses|floatformat:0|intcomma }}</div>
+      <div class="ag-stat-meta">Running expenses in selected period</div>
+    </div>
+
+    <div class="ag-card ag-stat red">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Net Result</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-wallet"></i></div>
+      </div>
+      <div class="ag-stat-value">Tsh {{ net|floatformat:0|intcomma }}</div>
+      <div class="ag-stat-meta">Gross profit minus expenses</div>
+    </div>
+  </div>
+
+  <div class="ag-grid">
+    <div class="ag-card ag-stat blue">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Buying Value</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-box-open"></i></div>
+      </div>
+      <div class="ag-stat-value">Tsh {{ total_buying|floatformat:0|intcomma }}</div>
+      <div class="ag-stat-meta">Estimated buying cost</div>
+    </div>
+
+    <div class="ag-card ag-stat amber">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Sales Count</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-basket-shopping"></i></div>
+      </div>
+      <div class="ag-stat-value">{{ sales_count|intcomma }}</div>
+      <div class="ag-stat-meta">Recorded sales</div>
+    </div>
+
+    <div class="ag-card ag-stat red">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Customers</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-users"></i></div>
+      </div>
+      <div class="ag-stat-value">{{ customers_count|intcomma }}</div>
+      <div class="ag-stat-meta">Saved agrovet customers</div>
+    </div>
+
+    <div class="ag-card ag-stat green">
+      <div class="ag-stat-top">
+        <div class="ag-stat-label">Expenses Count</div>
+        <div class="ag-stat-icon"><i class="fa-solid fa-file-invoice"></i></div>
+      </div>
+      <div class="ag-stat-value">{{ expenses_count|intcomma }}</div>
+      <div class="ag-stat-meta">Recorded expense entries</div>
+    </div>
+  </div>
+
+  <div class="ag-charts-grid">
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-chart-line text-success"></i> Sales / Profit / Expenses Trend</h3>
+        <span class="ag-chip"><i class="fa-solid fa-calendar"></i> {{ range_label }}</span>
+      </div>
+      <div class="ag-chart-shell">
+        <div class="ag-chart-box">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-chart-pie text-primary"></i> Payment Methods</h3>
+        <span class="ag-chip"><i class="fa-solid fa-circle-dot"></i> Distribution</span>
+      </div>
+      <div class="ag-chart-shell">
+        <div class="ag-chart-box sm">
+          <canvas id="paymentPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ag-charts-grid-2">
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-chart-column text-warning"></i> Top Categories</h3>
+        <span class="ag-chip"><i class="fa-solid fa-layer-group"></i> Best performing</span>
+      </div>
+      <div class="ag-chart-shell">
+        <div class="ag-chart-box sm">
+          <canvas id="categoryBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-wave-square text-info"></i> Last 6 Months</h3>
+        <span class="ag-chip"><i class="fa-solid fa-clock-rotate-left"></i> Monthly trend</span>
+      </div>
+      <div class="ag-chart-shell">
+        <div class="ag-chart-box sm">
+          <canvas id="monthlyLineChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ag-summary-grid">
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-chart-pie text-danger"></i> Profit vs Loss</h3>
+        <span class="ag-chip"><i class="fa-solid fa-scale-balanced"></i> Net result breakdown</span>
+      </div>
+      <div class="ag-chart-shell">
+        <div class="ag-chart-box xs">
+          <canvas id="profitLossPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="ag-card">
+      <div class="ag-head">
+        <h3><i class="fa-solid fa-file-invoice-dollar text-success"></i> Financial Summary</h3>
+        <span class="ag-chip"><i class="fa-solid fa-list"></i> Quick overview</span>
+      </div>
+
+      <div class="ag-finance-list">
+        <div class="ag-finance-row sales">
+          <div class="ag-finance-left">
+            <div class="ag-finance-icon"><i class="fa-solid fa-cash-register"></i></div>
+            <div>
+              <p class="ag-finance-name">Total Sales</p>
+              <p class="ag-finance-meta">{{ range_label }} selling value</p>
+            </div>
+          </div>
+          <div class="ag-finance-value">Tsh {{ total_sales|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="ag-finance-row profit">
+          <div class="ag-finance-left">
+            <div class="ag-finance-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+              <p class="ag-finance-name">Gross Profit</p>
+              <p class="ag-finance-meta">Before expenses</p>
+            </div>
+          </div>
+          <div class="ag-finance-value">Tsh {{ total_profit|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="ag-finance-row expense">
+          <div class="ag-finance-left">
+            <div class="ag-finance-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div>
+              <p class="ag-finance-name">Expenses</p>
+              <p class="ag-finance-meta">Operational costs</p>
+            </div>
+          </div>
+          <div class="ag-finance-value">Tsh {{ total_expenses|floatformat:0|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const trendLabels = {{ trend_labels_json|safe }};
+  const trendSales = {{ trend_sales_json|safe }};
+  const trendProfit = {{ trend_profit_json|safe }};
+  const trendExpenses = {{ trend_expenses_json|safe }};
+
+  const rawPaymentLabels = {{ payment_labels_json|safe }};
+  const rawPaymentValues = {{ payment_values_json|safe }};
+
+  const categoryLabels = {{ category_labels_json|safe }};
+  const categoryValues = {{ category_values_json|safe }};
+
+  const monthlyLabels = {{ monthly_labels_json|safe }};
+  const monthlySales = {{ monthly_sales_json|safe }};
+  const monthlyProfit = {{ monthly_profit_json|safe }};
+
+  const netValue = Number("{{ net|default:0 }}") || 0;
+  const realizedProfit = netValue > 0 ? netValue : 0;
+  const realizedLoss = netValue < 0 ? Math.abs(netValue) : 0;
+  const breakEvenValue = netValue === 0 ? 1 : 0;
+
+  const isMobile = window.innerWidth <= 768;
+  const isSmallPhone = window.innerWidth <= 480;
+
+  const paymentPairs = rawPaymentLabels.map((label, index) => ({
+    label: label,
+    value: rawPaymentValues[index] || 0
+  })).filter(item => ["Cash", "Bank", "Mobile"].includes(item.label));
+
+  const paymentLabels = paymentPairs.map(item => item.label);
+  const paymentValues = paymentPairs.map(item => item.value);
+
+  function fmtTsh(v){
+    return "Tsh " + Number(v || 0).toLocaleString();
+  }
+
+  function commonLegend(position="top"){
+    return {
+      display: true,
+      position: position,
+      labels: {
+        usePointStyle: true,
+        pointStyle: "circle",
+        boxWidth: isSmallPhone ? 8 : 10,
+        boxHeight: isSmallPhone ? 8 : 10,
+        padding: isMobile ? 10 : 14,
+        font: {
+          size: isSmallPhone ? 10 : (isMobile ? 11 : 12)
+        }
+      }
+    };
+  }
+
+  function commonTooltipLabel(ctx){
+    return ctx.dataset.label + ": " + fmtTsh(ctx.raw);
+  }
+
+  function commonTicks(){
+    return {
+      color: "#64748b",
+      font: {
+        size: isSmallPhone ? 10 : (isMobile ? 11 : 12)
+      },
+      callback: function(value){
+        return fmtTsh(value);
+      }
+    };
+  }
+
+  function commonGrid(){
+    return {
+      color: "rgba(148,163,184,.15)",
+      drawBorder: false
+    };
+  }
+
+  new Chart(document.getElementById("trendChart"), {
+    type: "line",
+    data: {
+      labels: trendLabels,
+      datasets: [
+        {
+          label: "Sales",
+          data: trendSales,
+          borderColor: "#16a34a",
+          backgroundColor: "rgba(22,163,74,.08)",
+          tension: .35,
+          fill: false,
+          borderWidth: isMobile ? 2 : 3,
+          pointRadius: isMobile ? 2 : 3,
+          pointHoverRadius: isMobile ? 3 : 4
+        },
+        {
+          label: "Profit",
+          data: trendProfit,
+          borderColor: "#2563eb",
+          backgroundColor: "rgba(37,99,235,.08)",
+          tension: .35,
+          fill: false,
+          borderWidth: isMobile ? 2 : 3,
+          pointRadius: isMobile ? 2 : 3,
+          pointHoverRadius: isMobile ? 3 : 4
+        },
+        {
+          label: "Expenses",
+          data: trendExpenses,
+          borderColor: "#dc2626",
+          backgroundColor: "rgba(220,38,38,.08)",
+          tension: .35,
+          fill: false,
+          borderWidth: isMobile ? 2 : 3,
+          pointRadius: isMobile ? 2 : 3,
+          pointHoverRadius: isMobile ? 3 : 4
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 4, bottom: 0, left: 0, right: 0 } },
+      plugins: {
+        legend: commonLegend(isMobile ? "bottom" : "top"),
+        tooltip: {
+          callbacks: {
+            label: commonTooltipLabel
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#64748b",
+            font: { size: isSmallPhone ? 10 : (isMobile ? 11 : 12) },
+            maxRotation: 0,
+            minRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: isMobile ? 5 : 8
+          },
+          grid: commonGrid()
+        },
+        y: {
+          beginAtZero: true,
+          ticks: commonTicks(),
+          grid: commonGrid()
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById("paymentPieChart"), {
+    type: "doughnut",
+    data: {
+      labels: paymentLabels,
+      datasets: [{
+        data: paymentValues,
+        backgroundColor: ["#16a34a","#2563eb","#7c3aed"],
+        borderColor: "#ffffff",
+        borderWidth: 2,
+        hoverOffset: isMobile ? 4 : 8
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      cutout: isMobile ? "58%" : "64%",
+      layout: { padding: 0 },
+      plugins: {
+        legend: commonLegend("bottom"),
+        tooltip: {
+          callbacks: {
+            label: function(ctx){
+              return ctx.label + ": " + fmtTsh(ctx.raw);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById("categoryBarChart"), {
+    type: "bar",
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        label: "Sales",
+        data: categoryValues,
+        backgroundColor: "#16a34a",
+        borderRadius: 8,
+        maxBarThickness: isMobile ? 22 : 30
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx){
+              return fmtTsh(ctx.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#64748b",
+            font: { size: isSmallPhone ? 10 : (isMobile ? 11 : 12) },
+            maxRotation: isMobile ? 0 : 20,
+            minRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: isMobile ? 5 : 8
+          },
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: commonTicks(),
+          grid: commonGrid()
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById("monthlyLineChart"), {
+    type: "bar",
+    data: {
+      labels: monthlyLabels,
+      datasets: [
+        {
+          type: "bar",
+          label: "Sales",
+          data: monthlySales,
+          backgroundColor: "rgba(22,163,74,.75)",
+          borderRadius: 8,
+          maxBarThickness: isMobile ? 18 : 26
+        },
+        {
+          type: "line",
+          label: "Profit",
+          data: monthlyProfit,
+          borderColor: "#2563eb",
+          backgroundColor: "#2563eb",
+          tension: .35,
+          borderWidth: isMobile ? 2 : 3,
+          pointRadius: isMobile ? 3 : 4,
+          pointHoverRadius: isMobile ? 4 : 5
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 0, bottom: 0, left: 0, right: 0 } },
+      plugins: {
+        legend: commonLegend("top"),
+        tooltip: {
+          callbacks: {
+            label: commonTooltipLabel
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#64748b",
+            font: { size: isSmallPhone ? 10 : (isMobile ? 11 : 12) },
+            maxRotation: 0,
+            minRotation: 0,
+            autoSkip: false
+          },
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: commonTicks(),
+          grid: commonGrid()
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById("profitLossPieChart"), {
+    type: "pie",
+    data: {
+      labels: netValue === 0 ? ["Break Even"] : ["Profit", "Loss"],
+      datasets: [{
+        data: netValue === 0 ? [breakEvenValue] : [realizedProfit, realizedLoss],
+        backgroundColor: netValue === 0 ? ["#f59e0b"] : ["#16a34a", "#dc2626"],
+        borderColor: "#ffffff",
+        borderWidth: 3
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: commonLegend("bottom"),
+        tooltip: {
+          callbacks: {
+            label: function(ctx){
+              if (netValue === 0) {
+                return "Break Even";
+              }
+              return ctx.label + ": " + fmtTsh(ctx.raw);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const modeSelect = document.getElementById("modeSelect");
+  const monthWrap = document.getElementById("monthWrap");
+  const yearWrap = document.getElementById("yearWrap");
+  const dateFromWrap = document.getElementById("dateFromWrap");
+  const dateToWrap = document.getElementById("dateToWrap");
+
+  function toggleFilterInputs(){
+    const mode = modeSelect ? modeSelect.value : "day";
+
+    if (mode === "day") {
+      monthWrap.style.display = "none";
+      yearWrap.style.display = "none";
+      dateFromWrap.style.display = "";
+      dateToWrap.style.display = "none";
+    } else if (mode === "month") {
+      monthWrap.style.display = "";
+      yearWrap.style.display = "";
+      dateFromWrap.style.display = "none";
+      dateToWrap.style.display = "none";
+    } else if (mode === "year") {
+      monthWrap.style.display = "none";
+      yearWrap.style.display = "";
+      dateFromWrap.style.display = "none";
+      dateToWrap.style.display = "none";
+    } else {
+      monthWrap.style.display = "none";
+      yearWrap.style.display = "none";
+      dateFromWrap.style.display = "";
+      dateToWrap.style.display = "";
+    }
+  }
+
+  if (modeSelect){
+    modeSelect.addEventListener("change", toggleFilterInputs);
+    toggleFilterInputs();
+  }
+</script>
+{% endblock %}

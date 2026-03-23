@@ -1,0 +1,583 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Agrovet Customers{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --ac-bg:#f8fafc;
+    --ac-card:#ffffff;
+    --ac-text:#0f172a;
+    --ac-muted:#64748b;
+    --ac-line:#e2e8f0;
+    --ac-line-soft:#eef2f7;
+    --ac-green:#16a34a;
+    --ac-green-soft:rgba(22,163,74,.08);
+    --ac-blue:#2563eb;
+    --ac-amber:#f59e0b;
+    --ac-red:#dc2626;
+    --ac-cyan:#0891b2;
+    --ac-shadow:0 10px 30px rgba(15,23,42,.06);
+    --ac-radius:20px;
+  }
+
+  .ac-wrap{
+    max-width:1380px;
+    margin:1rem auto 1.3rem;
+    padding:0 .85rem;
+    color:var(--ac-text);
+  }
+
+  .ac-hero{
+    background:
+      radial-gradient(850px 280px at 0% 0%, rgba(22,163,74,.12), transparent 55%),
+      linear-gradient(180deg,#ffffff,#fbfffc);
+    border:1px solid var(--ac-line);
+    border-radius:24px;
+    box-shadow:var(--ac-shadow);
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+  }
+
+  .ac-hero-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+
+  .ac-title{
+    margin:0;
+    font-size:1.08rem;
+    font-weight:900;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .ac-sub{
+    margin:.2rem 0 0;
+    color:var(--ac-muted);
+    font-size:.78rem;
+    line-height:1.5;
+    max-width:720px;
+  }
+
+  .ac-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.42rem .7rem;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:800;
+    background:#fff;
+    border:1px solid var(--ac-line);
+    color:#475569;
+    white-space:nowrap;
+  }
+
+  .ac-panel{
+    background:var(--ac-card);
+    border:1px solid var(--ac-line);
+    border-radius:20px;
+    box-shadow:var(--ac-shadow);
+    padding:1rem;
+  }
+
+  .ac-search{
+    margin-bottom:1rem;
+  }
+
+  .ac-label{
+    display:block;
+    margin-bottom:.36rem;
+    font-size:.68rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .ac-control{
+    height:44px;
+    border-radius:14px;
+    border:1px solid var(--ac-line);
+    font-size:.8rem;
+    box-shadow:none !important;
+  }
+
+  .ac-control:focus{
+    border-color:rgba(22,163,74,.38);
+    box-shadow:0 0 0 .18rem rgba(22,163,74,.10) !important;
+  }
+
+  .ac-btn{
+    height:44px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+    color:#fff;
+    font-size:.79rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    transition:.18s ease;
+    text-decoration:none;
+  }
+
+  .ac-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .ac-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.8rem;
+    flex-wrap:wrap;
+    margin-bottom:.9rem;
+  }
+
+  .ac-head-title{
+    margin:0;
+    font-size:.9rem;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .ac-meta{
+    color:var(--ac-muted);
+    font-size:.74rem;
+  }
+
+  .ac-table-wrap{
+    overflow:auto;
+    border:1px solid var(--ac-line-soft);
+    border-radius:18px;
+    background:#fff;
+  }
+
+  .ac-table{
+    width:100%;
+    min-width:860px;
+    border-collapse:separate;
+    border-spacing:0;
+    margin:0;
+  }
+
+  .ac-table thead th{
+    background:linear-gradient(180deg,#f8fbff,#f3f7fb);
+    color:#475569;
+    font-size:.68rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:.82rem .9rem;
+    white-space:nowrap;
+    border-bottom:1px solid var(--ac-line);
+  }
+
+  .ac-table tbody td{
+    padding:.85rem .9rem;
+    vertical-align:middle;
+    font-size:.79rem;
+    border-top:1px solid var(--ac-line-soft);
+  }
+
+  .ac-table tbody tr:first-child td{
+    border-top:none;
+  }
+
+  .ac-table tbody tr:nth-child(even){
+    background:#fcfdfd;
+  }
+
+  .ac-table tbody tr:hover{
+    background:#f8fafc;
+  }
+
+  .ac-customer{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    min-width:220px;
+  }
+
+  .ac-avatar{
+    width:40px;
+    height:40px;
+    border-radius:14px;
+    background:linear-gradient(135deg, rgba(22,163,74,.15), rgba(37,99,235,.10));
+    color:#166534;
+    font-size:.85rem;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    border:1px solid rgba(22,163,74,.10);
+  }
+
+  .ac-name{
+    margin:0;
+    font-size:.81rem;
+    font-weight:900;
+    color:#0f172a;
+    line-height:1.2;
+  }
+
+  .ac-subtext{
+    margin:.12rem 0 0;
+    font-size:.71rem;
+    color:var(--ac-muted);
+  }
+
+  .ac-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.34rem .58rem;
+    border-radius:999px;
+    font-size:.68rem;
+    font-weight:800;
+    border:1px solid transparent;
+    line-height:1;
+  }
+
+  .ac-badge.phone{
+    color:#166534;
+    background:rgba(22,163,74,.10);
+    border-color:rgba(22,163,74,.16);
+  }
+
+  .ac-badge.location{
+    color:#1d4ed8;
+    background:rgba(37,99,235,.10);
+    border-color:rgba(37,99,235,.16);
+  }
+
+  .ac-note{
+    color:#334155;
+    font-size:.76rem;
+    line-height:1.45;
+    max-width:340px;
+  }
+
+  .ac-dash{
+    color:#94a3b8;
+    font-weight:700;
+  }
+
+  .ac-empty{
+    text-align:center;
+    padding:2rem 1rem;
+    color:var(--ac-muted);
+  }
+
+  .ac-empty-icon{
+    width:64px;
+    height:64px;
+    margin:0 auto .8rem;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg, rgba(22,163,74,.10), rgba(37,99,235,.08));
+    color:#16a34a;
+    font-size:1.2rem;
+  }
+
+  .ac-empty-title{
+    margin:0 0 .25rem;
+    font-size:.92rem;
+    font-weight:900;
+    color:#0f172a;
+  }
+
+  .ac-empty-sub{
+    margin:0;
+    font-size:.76rem;
+    color:var(--ac-muted);
+  }
+
+  .ac-pagination{
+    margin-top:1rem;
+    display:flex;
+    justify-content:center;
+  }
+
+  .ac-pagination .pagination{
+    margin-bottom:0;
+    gap:.25rem;
+    flex-wrap:wrap;
+  }
+
+  .ac-pagination .page-link{
+    border-radius:12px !important;
+    border:1px solid var(--ac-line);
+    color:#334155;
+    padding:.48rem .72rem;
+    font-size:.77rem;
+    font-weight:700;
+    box-shadow:none !important;
+  }
+
+  .ac-pagination .page-item.active .page-link{
+    background:#16a34a;
+    border-color:#16a34a;
+    color:#fff;
+  }
+
+  .ac-pagination .page-link:hover{
+    color:#0f172a;
+    background:#f8fafc;
+  }
+
+  @media (max-width:768px){
+    .ac-wrap{
+      padding:0 .68rem;
+      margin:.8rem auto 1rem;
+    }
+
+    .ac-hero,
+    .ac-panel{
+      padding:.9rem;
+      border-radius:18px;
+    }
+
+    .ac-title{
+      font-size:1rem;
+    }
+
+    .ac-sub{
+      font-size:.74rem;
+    }
+
+    .ac-head-title{
+      font-size:.84rem;
+    }
+
+    .ac-table{
+      min-width:720px;
+    }
+
+    .ac-table thead th,
+    .ac-table tbody td{
+      padding:.75rem .72rem;
+    }
+
+    .ac-avatar{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      font-size:.8rem;
+    }
+
+    .ac-name{
+      font-size:.78rem;
+    }
+
+    .ac-subtext,
+    .ac-note{
+      font-size:.72rem;
+    }
+  }
+
+  @media (max-width:480px){
+    .ac-wrap{
+      padding:0 .55rem;
+    }
+
+    .ac-chip{
+      font-size:.66rem;
+      padding:.36rem .58rem;
+    }
+
+    .ac-control,
+    .ac-btn{
+      height:42px;
+      font-size:.76rem;
+    }
+
+    .ac-table{
+      min-width:660px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ac-wrap">
+
+  <div class="ac-hero">
+    <div class="ac-hero-top">
+      <div>
+        <h2 class="ac-title">
+          <i class="fa-solid fa-users text-success"></i>
+          Agrovet Customers
+        </h2>
+        <div class="ac-sub">
+          View and manage customers who buy feeds, medicines, supplements and other livestock products from the agrovet section.
+        </div>
+      </div>
+
+      <div class="ac-chip">
+        <i class="fa-solid fa-user-group"></i>
+        {{ page_obj.paginator.count|intcomma }} Customer{{ page_obj.paginator.count|pluralize }}
+      </div>
+    </div>
+  </div>
+
+  <div class="ac-panel">
+    <form method="get" class="row g-2 ac-search">
+      <div class="col-12 col-md-5">
+        <label class="ac-label">Search Customers</label>
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          class="form-control ac-control"
+          placeholder="Search name, phone or location..."
+        >
+      </div>
+      <div class="col-12 col-md-2 d-flex align-items-end">
+        <button class="ac-btn w-100">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          Search
+        </button>
+      </div>
+    </form>
+
+    <div class="ac-head">
+      <h3 class="ac-head-title">
+        <i class="fa-solid fa-address-book text-success"></i>
+        Customers Directory
+      </h3>
+      <div class="ac-meta">
+        Showing {{ customers|length }} item{{ customers|length|pluralize }} on this page
+      </div>
+    </div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Location</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in customers %}
+          <tr>
+            <td>
+              <div class="ac-customer">
+                <div class="ac-avatar">
+                  {{ c.name|default:"C"|slice:":1"|upper }}
+                </div>
+                <div>
+                  <p class="ac-name">{{ c.name|default:"Customer" }}</p>
+                  <p class="ac-subtext">Agrovet customer profile</p>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              {% if c.phone %}
+                <span class="ac-badge phone">
+                  <i class="fa-solid fa-phone"></i>
+                  {{ c.phone }}
+                </span>
+              {% else %}
+                <span class="ac-dash">—</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if c.location %}
+                <span class="ac-badge location">
+                  <i class="fa-solid fa-location-dot"></i>
+                  {{ c.location }}
+                </span>
+              {% else %}
+                <span class="ac-dash">—</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if c.note %}
+                <div class="ac-note">{{ c.note }}</div>
+              {% else %}
+                <span class="ac-dash">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4">
+              <div class="ac-empty">
+                <div class="ac-empty-icon">
+                  <i class="fa-solid fa-user-slash"></i>
+                </div>
+                <h4 class="ac-empty-title">No customers found</h4>
+                <p class="ac-empty-sub">Try searching with a different name, phone number or location.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="ac-pagination">
+      <nav aria-label="Customers pagination">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Previous</span>
+            </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+              <li class="page-item">
+                <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Next</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

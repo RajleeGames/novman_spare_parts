@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Sale Detail{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --sd-card:#ffffff;
+    --sd-text:#0f172a;
+    --sd-muted:#64748b;
+    --sd-line:#e2e8f0;
+    --sd-line-soft:#eef2f7;
+    --sd-green:#16a34a;
+    --sd-green-soft:rgba(22,163,74,.08);
+    --sd-blue:#2563eb;
+    --sd-blue-soft:rgba(37,99,235,.08);
+    --sd-amber:#f59e0b;
+    --sd-amber-soft:rgba(245,158,11,.10);
+    --sd-red:#dc2626;
+    --sd-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .sd-wrap{
+    max-width:1180px;
+    margin:1rem auto 1.4rem;
+    padding:0 .85rem;
+    color:var(--sd-text);
+  }
+
+  .sd-hero,
+  .sd-card-box{
+    background:var(--sd-card);
+    border:1px solid var(--sd-line);
+    border-radius:22px;
+    box-shadow:var(--sd-shadow);
+  }
+
+  .sd-hero{
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(22,163,74,.10), transparent 55%),
+      linear-gradient(180deg,#ffffff,#fbfffc);
+  }
+
+  .sd-hero-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.9rem;
+    flex-wrap:wrap;
+  }
+
+  .sd-title{
+    margin:0;
+    font-size:1.08rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .sd-sub{
+    margin:.22rem 0 0;
+    font-size:.76rem;
+    color:var(--sd-muted);
+  }
+
+  .sd-btn,
+  .sd-btn-light{
+    height:40px;
+    padding:0 .95rem;
+    border-radius:12px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    font-size:.77rem;
+    font-weight:800;
+    transition:.18s ease;
+    white-space:nowrap;
+  }
+
+  .sd-btn{
+    border:none;
+    color:#fff;
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+  }
+
+  .sd-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sd-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--sd-line);
+  }
+
+  .sd-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .sd-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .sd-stat{
+    position:relative;
+    overflow:hidden;
+    padding:1rem;
+    border-radius:20px;
+    border:1px solid var(--sd-line);
+    background:#fff;
+    box-shadow:var(--sd-shadow);
+  }
+
+  .sd-stat::after{
+    content:"";
+    position:absolute;
+    right:-18px;
+    top:-18px;
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+
+  .sd-stat.green{ background:linear-gradient(180deg,#ffffff,#f7fff9); }
+  .sd-stat.blue{ background:linear-gradient(180deg,#ffffff,#f8fbff); }
+  .sd-stat.amber{ background:linear-gradient(180deg,#ffffff,#fffaf2); }
+  .sd-stat.red{ background:linear-gradient(180deg,#ffffff,#fff8f8); }
+
+  .sd-stat-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:.7rem;
+    gap:.6rem;
+  }
+
+  .sd-stat-label{
+    font-size:.71rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sd-stat-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.95rem;
+  }
+
+  .sd-stat.green .sd-stat-icon{ background:var(--sd-green-soft); color:var(--sd-green); }
+  .sd-stat.blue .sd-stat-icon{ background:var(--sd-blue-soft); color:var(--sd-blue); }
+  .sd-stat.amber .sd-stat-icon{ background:var(--sd-amber-soft); color:#d97706; }
+  .sd-stat.red .sd-stat-icon{ background:rgba(220,38,38,.08); color:var(--sd-red); }
+
+  .sd-stat-value{
+    font-size:1.18rem;
+    font-weight:900;
+    line-height:1.1;
+    letter-spacing:-.03em;
+    margin-bottom:.15rem;
+  }
+
+  .sd-stat-meta{
+    font-size:.73rem;
+    color:var(--sd-muted);
+  }
+
+  .sd-main{
+    display:grid;
+    grid-template-columns:1.18fr .82fr;
+    gap:1rem;
+    margin-bottom:1rem;
+  }
+
+  .sd-card-box{
+    padding:1rem;
+  }
+
+  .sd-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.75rem;
+    flex-wrap:wrap;
+    margin-bottom:.85rem;
+  }
+
+  .sd-head h3,
+  .sd-head h4{
+    margin:0;
+    font-size:.88rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .sd-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.35rem;
+    padding:.32rem .56rem;
+    border-radius:999px;
+    font-size:.69rem;
+    font-weight:800;
+    border:1px solid var(--sd-line);
+    background:#f8fafc;
+    color:#475569;
+    text-transform:uppercase;
+  }
+
+  .sd-chip.cash{
+    color:var(--sd-green);
+    background:rgba(22,163,74,.08);
+    border-color:rgba(22,163,74,.14);
+  }
+
+  .sd-chip.bank{
+    color:var(--sd-blue);
+    background:rgba(37,99,235,.08);
+    border-color:rgba(37,99,235,.14);
+  }
+
+  .sd-chip.mobile{
+    color:#7c3aed;
+    background:rgba(124,58,237,.08);
+    border-color:rgba(124,58,237,.14);
+  }
+
+  .sd-chip.debt{
+    color:#d97706;
+    background:rgba(245,158,11,.12);
+    border-color:rgba(245,158,11,.18);
+  }
+
+  .sd-info-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:.8rem;
+  }
+
+  .sd-info{
+    border:1px solid var(--sd-line-soft);
+    background:#fff;
+    border-radius:16px;
+    padding:.85rem;
+  }
+
+  .sd-info-label{
+    font-size:.68rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-bottom:.28rem;
+  }
+
+  .sd-info-value{
+    font-size:.82rem;
+    font-weight:700;
+    color:var(--sd-text);
+    line-height:1.45;
+    word-break:break-word;
+  }
+
+  .sd-note{
+    grid-column:1/-1;
+  }
+
+  .sd-form-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:.75rem;
+    margin-bottom:.8rem;
+  }
+
+  .sd-label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.69rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sd-control{
+    width:100%;
+    height:42px;
+    border-radius:12px;
+    border:1px solid var(--sd-line);
+    font-size:.8rem;
+    box-shadow:none !important;
+  }
+
+  .sd-control:focus{
+    border-color:rgba(22,163,74,.35);
+    box-shadow:0 0 0 .18rem rgba(22,163,74,.10) !important;
+  }
+
+  .sd-actions{
+    display:flex;
+    gap:.65rem;
+    flex-wrap:wrap;
+  }
+
+  .sd-table-wrap{
+    overflow:auto;
+  }
+
+  .sd-table{
+    width:100%;
+    min-width:520px;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  .sd-table thead th{
+    background:linear-gradient(180deg,#f8fbff,#f3f7fb);
+    color:#475569;
+    font-size:.69rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:.76rem .8rem;
+    border-bottom:1px solid var(--sd-line);
+    white-space:nowrap;
+  }
+
+  .sd-table tbody td{
+    font-size:.78rem;
+    padding:.78rem .8rem;
+    border-top:1px solid var(--sd-line-soft);
+    vertical-align:middle;
+  }
+
+  .sd-table tbody tr:nth-child(even){
+    background:#fcfdfd;
+  }
+
+  .sd-table tbody tr:hover{
+    background:#f8fafc;
+  }
+
+  .sd-empty{
+    text-align:center;
+    color:var(--sd-muted);
+    padding:1.25rem .85rem;
+    border:1px dashed var(--sd-line);
+    border-radius:16px;
+    background:#fff;
+  }
+
+  @media (max-width:1100px){
+    .sd-grid{
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+    .sd-main{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media (max-width:768px){
+    .sd-wrap{ padding:0 .7rem; }
+    .sd-grid{ grid-template-columns:1fr; }
+    .sd-info-grid{ grid-template-columns:1fr; }
+    .sd-form-grid{ grid-template-columns:1fr; }
+    .sd-hero, .sd-card-box{ padding:.9rem; }
+    .sd-btn, .sd-btn-light{ width:100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sd-wrap">
+
+  <div class="sd-hero">
+    <div class="sd-hero-top">
+      <div>
+        <h2 class="sd-title">
+          <i class="fa-solid fa-file-invoice-dollar text-success"></i>
+          {{ sale.item_name }}
+        </h2>
+        <div class="sd-sub">Detailed agrovet sale record with payment progress and balance tracking.</div>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'agrovet:sale_list' %}" class="sd-btn-light">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sd-grid">
+    <div class="sd-stat green">
+      <div class="sd-stat-top">
+        <div class="sd-stat-label">Total Sale</div>
+        <div class="sd-stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+      </div>
+      <div class="sd-stat-value">Tsh {{ sale.total_selling|floatformat:0|intcomma }}</div>
+      <div class="sd-stat-meta">Overall sale value</div>
+    </div>
+
+    <div class="sd-stat blue">
+      <div class="sd-stat-top">
+        <div class="sd-stat-label">Amount Paid</div>
+        <div class="sd-stat-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+      </div>
+      <div class="sd-stat-value">Tsh {{ sale.amount_paid|floatformat:0|intcomma }}</div>
+      <div class="sd-stat-meta">Money already received</div>
+    </div>
+
+    <div class="sd-stat amber">
+      <div class="sd-stat-top">
+        <div class="sd-stat-label">Balance</div>
+        <div class="sd-stat-icon"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+      </div>
+      <div class="sd-stat-value">Tsh {{ balance|floatformat:0|intcomma }}</div>
+      <div class="sd-stat-meta">Amount still unpaid</div>
+    </div>
+
+    <div class="sd-stat red">
+      <div class="sd-stat-top">
+        <div class="sd-stat-label">Profit</div>
+        <div class="sd-stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+      </div>
+      <div class="sd-stat-value">Tsh {{ sale.profit|floatformat:0|intcomma }}</div>
+      <div class="sd-stat-meta">Selling minus buying</div>
+    </div>
+  </div>
+
+  <div class="sd-main">
+    <div class="sd-card-box">
+      <div class="sd-head">
+        <h3><i class="fa-solid fa-circle-info text-primary"></i> Sale Information</h3>
+        <span class="sd-chip {{ sale.payment_method }}">{{ sale.payment_method }}</span>
+      </div>
+
+      <div class="sd-info-grid">
+        <div class="sd-info">
+          <div class="sd-info-label">Customer</div>
+          <div class="sd-info-value">{{ sale.customer.name|default:"Walk-in" }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Phone</div>
+          <div class="sd-info-value">{{ sale.customer.phone|default:"-" }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Branch</div>
+          <div class="sd-info-value">{{ sale.branch.name|default:"-" }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Date</div>
+          <div class="sd-info-value">{{ sale.sold_at|date:"Y-m-d H:i" }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Quantity</div>
+          <div class="sd-info-value">{{ sale.quantity|floatformat:0 }} {{ sale.unit }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Payment Method</div>
+          <div class="sd-info-value">{{ sale.payment_method|upper }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Buying Price</div>
+          <div class="sd-info-value">Tsh {{ sale.buying_price|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Selling Price</div>
+          <div class="sd-info-value">Tsh {{ sale.selling_price|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Recorded By</div>
+          <div class="sd-info-value">
+            {% if sale.created_by %}
+              {{ sale.created_by.username }}
+            {% else %}
+              -
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="sd-info">
+          <div class="sd-info-label">Amount Paid</div>
+          <div class="sd-info-value">Tsh {{ sale.amount_paid|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="sd-info sd-note">
+          <div class="sd-info-label">Note</div>
+          <div class="sd-info-value">{{ sale.note|default:"No note" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-grid gap-3">
+      {% if sale.payment_method == "debt" %}
+      <div class="sd-card-box">
+        <div class="sd-head">
+          <h4><i class="fa-solid fa-plus text-success"></i> Add Payment</h4>
+          <span class="sd-chip debt">Debt</span>
+        </div>
+
+        <form method="post" action="{% url 'agrovet:add_payment' sale.id %}">
+          {% csrf_token %}
+
+          <div class="sd-form-grid">
+            <div>
+              <label class="sd-label">Amount</label>
+              <input type="number" step="0.01" min="0" name="amount" class="form-control sd-control" placeholder="Amount">
+            </div>
+
+            <div>
+              <label class="sd-label">Paid At</label>
+              <input type="datetime-local" name="paid_at" class="form-control sd-control">
+            </div>
+
+            <div>
+              <label class="sd-label">Note</label>
+              <input type="text" name="note" class="form-control sd-control" placeholder="Payment note">
+            </div>
+          </div>
+
+          <div class="sd-actions">
+            <button class="sd-btn" type="submit">
+              <i class="fa-solid fa-floppy-disk"></i>
+              Save Payment
+            </button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="sd-card-box">
+        <div class="sd-head">
+          <h4><i class="fa-solid fa-credit-card text-primary"></i> Payments</h4>
+          <span class="sd-chip">
+            <i class="fa-solid fa-list"></i>
+            {{ payments|length }} record{{ payments|length|pluralize }}
+          </span>
+        </div>
+
+        {% if payments %}
+        <div class="sd-table-wrap">
+          <table class="sd-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Note</th>
+                <th class="text-end">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in payments %}
+              <tr>
+                <td>{{ p.paid_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ p.note|default:"-" }}</td>
+                <td class="text-end">Tsh {{ p.amount|floatformat:0|intcomma }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <div class="sd-empty">No payments yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

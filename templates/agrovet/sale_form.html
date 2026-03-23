@@ -1,0 +1,872 @@
+{% extends "base.html" %}
+{% block title %}Record Agrovet Sale{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --sf-card:#ffffff;
+    --sf-text:#0f172a;
+    --sf-muted:#64748b;
+    --sf-line:#e2e8f0;
+    --sf-soft:#f8fafc;
+    --sf-green:#16a34a;
+    --sf-green-2:#22c55e;
+    --sf-blue:#2563eb;
+    --sf-amber:#d97706;
+    --sf-red:#dc2626;
+    --sf-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .sf-wrap{
+    max-width:900px;
+    margin:1rem auto;
+    padding:0 .85rem;
+  }
+
+  .sf-card{
+    background:#fff;
+    border:1px solid var(--sf-line);
+    border-radius:22px;
+    box-shadow:var(--sf-shadow);
+    overflow:hidden;
+  }
+
+  .sf-head{
+    padding:1rem 1rem .95rem;
+    border-bottom:1px solid var(--sf-line);
+    background:
+      linear-gradient(135deg, rgba(22,163,74,.06), rgba(34,197,94,.03)),
+      linear-gradient(180deg,#fff,#fbfffc);
+  }
+
+  .sf-title{
+    margin:0;
+    font-size:1rem;
+    font-weight:800;
+    color:var(--sf-text);
+  }
+
+  .sf-sub{
+    margin:.2rem 0 0;
+    font-size:.76rem;
+    color:var(--sf-muted);
+  }
+
+  .sf-body{
+    padding:1rem;
+  }
+
+  .sf-hidden{
+    display:none !important;
+  }
+
+  .sf-block{
+    background:#fff;
+    border:1px solid var(--sf-line);
+    border-radius:18px;
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .sf-block-title{
+    margin:0 0 .85rem;
+    font-size:.84rem;
+    font-weight:800;
+    color:var(--sf-text);
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .sf-label{
+    display:block;
+    font-size:.7rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-bottom:.35rem;
+  }
+
+  .sf-control,
+  .sf-area{
+    border:1px solid var(--sf-line) !important;
+    border-radius:12px !important;
+    font-size:.82rem !important;
+    box-shadow:none !important;
+  }
+
+  .sf-control{
+    min-height:44px;
+  }
+
+  .sf-area{
+    min-height:110px;
+    resize:vertical;
+  }
+
+  .sf-control:focus,
+  .sf-area:focus{
+    border-color:rgba(37,99,235,.35) !important;
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .sf-product-box{
+    background:linear-gradient(180deg,#ffffff,#fcfffd);
+    border:1px solid var(--sf-line);
+    border-radius:18px;
+    padding:1rem;
+  }
+
+  .sf-product-search{
+    position:relative;
+  }
+
+  .sf-hint{
+    margin-top:.35rem;
+    font-size:.72rem;
+    color:var(--sf-muted);
+  }
+
+  .sf-suggestions{
+    position:absolute;
+    left:0;
+    right:0;
+    top:100%;
+    margin-top:.35rem;
+    z-index:30;
+    background:#fff;
+    border:1px solid var(--sf-line);
+    border-radius:14px;
+    box-shadow:0 18px 35px rgba(15,23,42,.10);
+    max-height:280px;
+    overflow:auto;
+    display:none;
+  }
+
+  .sf-suggestions.show{
+    display:block;
+  }
+
+  .sf-suggestion{
+    padding:.78rem .85rem;
+    border-bottom:1px solid #eef2f7;
+    cursor:pointer;
+    transition:.15s ease;
+  }
+
+  .sf-suggestion:last-child{
+    border-bottom:none;
+  }
+
+  .sf-suggestion:hover{
+    background:#f8fafc;
+  }
+
+  .sf-sug-name{
+    font-size:.82rem;
+    font-weight:800;
+    color:var(--sf-text);
+    margin-bottom:.12rem;
+  }
+
+  .sf-sug-meta{
+    font-size:.72rem;
+    color:var(--sf-muted);
+    line-height:1.35;
+  }
+
+  .sf-preview{
+    margin-top:.85rem;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:.75rem;
+  }
+
+  .sf-mini{
+    border:1px solid var(--sf-line);
+    background:var(--sf-soft);
+    border-radius:16px;
+    padding:.8rem;
+  }
+
+  .sf-mini-label{
+    font-size:.67rem;
+    color:var(--sf-muted);
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:.05em;
+    margin-bottom:.2rem;
+  }
+
+  .sf-mini-value{
+    font-size:.86rem;
+    font-weight:800;
+    color:var(--sf-text);
+    line-height:1.35;
+  }
+
+  .sf-mini-value.stock-low{
+    color:var(--sf-amber);
+  }
+
+  .sf-qty-wrap{
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .sf-qty-btn{
+    width:42px;
+    height:44px;
+    border:1px solid var(--sf-line);
+    border-radius:12px;
+    background:#fff;
+    color:var(--sf-text);
+    font-size:1rem;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .sf-qty-btn:hover{
+    background:#f8fafc;
+    border-color:#cbd5e1;
+  }
+
+  .sf-qty-wrap .sf-control{
+    text-align:center;
+    font-weight:800;
+  }
+
+  .sf-calc-box{
+    margin-top:.85rem;
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:.75rem;
+  }
+
+  .sf-calc{
+    border:1px solid var(--sf-line);
+    background:var(--sf-soft);
+    border-radius:16px;
+    padding:.8rem;
+  }
+
+  .sf-calc-label{
+    font-size:.67rem;
+    color:var(--sf-muted);
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:.05em;
+    margin-bottom:.2rem;
+  }
+
+  .sf-calc-value{
+    font-size:.92rem;
+    font-weight:900;
+    color:var(--sf-text);
+  }
+
+  .sf-total-box{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:.8rem;
+    margin-top:.25rem;
+  }
+
+  .sf-total{
+    border:1px solid var(--sf-line);
+    border-radius:16px;
+    padding:.9rem;
+    background:#fff;
+  }
+
+  .sf-total small{
+    display:block;
+    color:var(--sf-muted);
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:800;
+    margin-bottom:.2rem;
+  }
+
+  .sf-total strong{
+    font-size:.98rem;
+    color:var(--sf-text);
+  }
+
+  .sf-total.paid strong{
+    color:var(--sf-green);
+  }
+
+  .sf-total.balance strong{
+    color:var(--sf-amber);
+  }
+
+  .sf-error{
+    color:var(--sf-red);
+    font-size:.72rem;
+    margin-top:.3rem;
+  }
+
+  .sf-btns{
+    display:flex;
+    align-items:center;
+    gap:.65rem;
+    flex-wrap:wrap;
+    margin-top:.4rem;
+  }
+
+  .sf-btn{
+    height:44px;
+    padding:0 1rem;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--sf-green),var(--sf-green-2));
+    color:#fff;
+    font-size:.82rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    text-decoration:none;
+  }
+
+  .sf-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sf-btn-light{
+    height:44px;
+    padding:0 1rem;
+    border:1px solid var(--sf-line);
+    border-radius:12px;
+    background:#fff;
+    color:#334155;
+    font-size:.82rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    text-decoration:none;
+  }
+
+  .sf-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  @media (max-width:991px){
+    .sf-preview,
+    .sf-total-box,
+    .sf-calc-box{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+
+  @media (max-width:767px){
+    .sf-wrap{
+      padding:0 .7rem;
+    }
+
+    .sf-head,
+    .sf-body,
+    .sf-block,
+    .sf-product-box{
+      padding:.9rem;
+    }
+
+    .sf-preview,
+    .sf-total-box,
+    .sf-calc-box{
+      grid-template-columns:1fr;
+    }
+
+    .sf-btn,
+    .sf-btn-light{
+      width:100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sf-wrap">
+  <div class="sf-card">
+    <div class="sf-head">
+      <h2 class="sf-title">
+        <i class="fa-solid fa-cart-plus text-success me-2"></i>
+        Record Agrovet Sale
+      </h2>
+      <div class="sf-sub">
+        Select a product, enter quantity, payment and customer details, then save.
+      </div>
+    </div>
+
+    <div class="sf-body">
+      <form method="post" id="agrovetSaleForm" novalidate>
+        {% csrf_token %}
+
+        <div class="sf-hidden">
+          {{ form.product }}
+          {{ form.item_name }}
+          {{ form.category }}
+          {{ form.unit }}
+          {{ form.buying_price }}
+          {{ form.selling_price }}
+        </div>
+
+        <div class="sf-block">
+          <h3 class="sf-block-title">
+            <i class="fa-solid fa-magnifying-glass text-primary"></i>
+            Select Product
+          </h3>
+
+          <div class="sf-product-box">
+            <label class="sf-label">Search Product</label>
+            <div class="sf-product-search">
+              <input
+                type="text"
+                id="productSearch"
+                class="form-control sf-control"
+                placeholder="Type product name..."
+                autocomplete="off"
+              >
+              <div id="productSuggestions" class="sf-suggestions"></div>
+            </div>
+            <div class="sf-hint">
+              Search and click one product. Prices and details fill automatically.
+            </div>
+
+            {% if form.product.errors %}
+              <div class="sf-error">{{ form.product.errors|join:", " }}</div>
+            {% endif %}
+
+            <div class="sf-preview">
+              <div class="sf-mini">
+                <div class="sf-mini-label">Product</div>
+                <div class="sf-mini-value" id="selectedProductName">—</div>
+              </div>
+              <div class="sf-mini">
+                <div class="sf-mini-label">Category</div>
+                <div class="sf-mini-value" id="selectedCategory">—</div>
+              </div>
+              <div class="sf-mini">
+                <div class="sf-mini-label">Price</div>
+                <div class="sf-mini-value" id="selectedSelling">Tsh 0</div>
+              </div>
+              <div class="sf-mini">
+                <div class="sf-mini-label">Stock</div>
+                <div class="sf-mini-value" id="selectedStock">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sf-block">
+          <h3 class="sf-block-title">
+            <i class="fa-solid fa-receipt text-primary"></i>
+            Sale Details
+          </h3>
+
+          <div class="row g-3">
+            {% if form.branch %}
+            <div class="col-md-4">
+              <label class="sf-label">Branch</label>
+              {{ form.branch }}
+              {% if form.branch.errors %}
+                <div class="sf-error">{{ form.branch.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="col-md-4">
+              <label class="sf-label">Quantity</label>
+              <div class="sf-qty-wrap">
+                <button type="button" class="sf-qty-btn" id="qtyMinus">−</button>
+                {{ form.quantity }}
+                <button type="button" class="sf-qty-btn" id="qtyPlus">+</button>
+              </div>
+              {% if form.quantity.errors %}
+                <div class="sf-error">{{ form.quantity.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="sf-label">Payment Method</label>
+              {{ form.payment_method }}
+              {% if form.payment_method.errors %}
+                <div class="sf-error">{{ form.payment_method.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="sf-label">Amount Paid</label>
+              {{ form.amount_paid }}
+              {% if form.amount_paid.errors %}
+                <div class="sf-error">{{ form.amount_paid.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="sf-label">Note</label>
+              {{ form.note }}
+              {% if form.note.errors %}
+                <div class="sf-error">{{ form.note.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="sf-calc-box">
+            <div class="sf-calc">
+              <div class="sf-calc-label">Unit Selling Price</div>
+              <div class="sf-calc-value" id="unitPricePreview">Tsh 0</div>
+            </div>
+            <div class="sf-calc">
+              <div class="sf-calc-label">Calculated Total</div>
+              <div class="sf-calc-value" id="calculatedTotalPreview">Tsh 0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sf-block">
+          <h3 class="sf-block-title">
+            <i class="fa-solid fa-user-group text-primary"></i>
+            Customer
+          </h3>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="sf-label">Customer Name</label>
+              {{ form.customer_name }}
+              {% if form.customer_name.errors %}
+                <div class="sf-error">{{ form.customer_name.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="sf-label">Customer Phone</label>
+              {{ form.customer_phone }}
+              {% if form.customer_phone.errors %}
+                <div class="sf-error">{{ form.customer_phone.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="sf-block">
+          <h3 class="sf-block-title">
+            <i class="fa-solid fa-calculator text-primary"></i>
+            Summary
+          </h3>
+
+          <div class="sf-total-box">
+            <div class="sf-total">
+              <small>Total Sale</small>
+              <strong id="saleTotalPreview">Tsh 0</strong>
+            </div>
+            <div class="sf-total paid">
+              <small>Amount Paid</small>
+              <strong id="amountPaidPreview">Tsh 0</strong>
+            </div>
+            <div class="sf-total balance">
+              <small>Balance</small>
+              <strong id="balancePreview">Tsh 0</strong>
+            </div>
+          </div>
+
+          <div class="sf-btns">
+            <button type="submit" class="sf-btn">
+              <i class="fa-solid fa-floppy-disk"></i>
+              Save Sale
+            </button>
+
+            <a href="{% url 'agrovet:sale_list' %}" class="sf-btn-light">
+              <i class="fa-solid fa-arrow-left"></i>
+              Back to Sales
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const products = {{ products_json|default:"[]"|safe }};
+
+  const productSearch = document.getElementById("productSearch");
+  const suggestionsBox = document.getElementById("productSuggestions");
+
+  const productSelect = document.getElementById("id_product");
+  const itemNameInput = document.getElementById("id_item_name");
+  const categoryInput = document.getElementById("id_category");
+  const unitInput = document.getElementById("id_unit");
+  const quantityInput = document.getElementById("id_quantity");
+  const buyingPriceInput = document.getElementById("id_buying_price");
+  const sellingPriceInput = document.getElementById("id_selling_price");
+  const paymentMethodInput = document.getElementById("id_payment_method");
+  const amountPaidInput = document.getElementById("id_amount_paid");
+
+  const selectedProductName = document.getElementById("selectedProductName");
+  const selectedCategory = document.getElementById("selectedCategory");
+  const selectedSelling = document.getElementById("selectedSelling");
+  const selectedStock = document.getElementById("selectedStock");
+
+  const saleTotalPreview = document.getElementById("saleTotalPreview");
+  const amountPaidPreview = document.getElementById("amountPaidPreview");
+  const balancePreview = document.getElementById("balancePreview");
+  const unitPricePreview = document.getElementById("unitPricePreview");
+  const calculatedTotalPreview = document.getElementById("calculatedTotalPreview");
+
+  const qtyMinus = document.getElementById("qtyMinus");
+  const qtyPlus = document.getElementById("qtyPlus");
+
+  let userEditedAmountPaid = false;
+  let lastPaymentMethod = "";
+
+  function fmtMoney(value){
+    const num = parseFloat(value || 0);
+    return "Tsh " + num.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function fmtQty(value){
+    const num = parseFloat(value || 0);
+    if (Number.isInteger(num)) return num.toLocaleString();
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function getQty(){
+    let qty = parseFloat(quantityInput?.value || 0);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    return qty;
+  }
+
+  function getSellPrice(){
+    let sell = parseFloat(sellingPriceInput?.value || 0);
+    if (isNaN(sell) || sell < 0) sell = 0;
+    return sell;
+  }
+
+  function getMethod(){
+    return (paymentMethodInput?.value || "").toLowerCase().trim();
+  }
+
+  function isPaidMethod(method){
+    return ["cash", "bank", "mobile", "card", "ebt"].includes(method);
+  }
+
+  function setQty(value){
+    if (!quantityInput) return;
+    let qty = parseFloat(value || 1);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    quantityInput.value = qty;
+    updateTotals();
+  }
+
+  function fillProduct(product){
+    if (!product) return;
+
+    if (productSelect) productSelect.value = product.id || "";
+    if (itemNameInput) itemNameInput.value = product.item_name || "";
+    if (categoryInput) categoryInput.value = product.category || "";
+    if (unitInput) unitInput.value = product.unit || "";
+    if (buyingPriceInput) buyingPriceInput.value = product.buying_price || 0;
+    if (sellingPriceInput) sellingPriceInput.value = product.selling_price || 0;
+
+    if (quantityInput && (!quantityInput.value || parseFloat(quantityInput.value) <= 0)) {
+      quantityInput.value = 1;
+    }
+
+    selectedProductName.textContent = product.item_name || "—";
+    selectedCategory.textContent = product.category || "—";
+    selectedSelling.textContent = fmtMoney(product.selling_price || 0);
+
+    const stockValue = parseFloat(product.stock_qty || 0);
+    selectedStock.textContent = product.stock_qty !== undefined ? fmtQty(stockValue) : "—";
+    selectedStock.classList.toggle("stock-low", stockValue <= 5 && stockValue > 0);
+
+    productSearch.value = product.item_name || "";
+    suggestionsBox.classList.remove("show");
+    suggestionsBox.innerHTML = "";
+
+    updateTotals();
+  }
+
+  function renderSuggestions(list){
+    if (!list.length){
+      suggestionsBox.innerHTML = `
+        <div class="sf-suggestion">
+          <div class="sf-sug-name">No product found</div>
+          <div class="sf-sug-meta">Try another name.</div>
+        </div>
+      `;
+      suggestionsBox.classList.add("show");
+      return;
+    }
+
+    suggestionsBox.innerHTML = list.map((p, index) => `
+      <div class="sf-suggestion" data-index="${index}">
+        <div class="sf-sug-name">${p.item_name || ""}</div>
+        <div class="sf-sug-meta">
+          ${p.category || "-"} • Stock: ${p.stock_qty !== undefined ? fmtQty(p.stock_qty) : "-"} • Sell: Tsh ${(parseFloat(p.selling_price || 0)).toLocaleString()}
+        </div>
+      </div>
+    `).join("");
+
+    suggestionsBox.classList.add("show");
+
+    suggestionsBox.querySelectorAll(".sf-suggestion").forEach((el, idx) => {
+      el.addEventListener("click", function(){
+        fillProduct(list[idx]);
+      });
+    });
+  }
+
+  productSearch?.addEventListener("input", function(){
+    const q = this.value.trim().toLowerCase();
+
+    if (!q){
+      suggestionsBox.classList.remove("show");
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+
+    const filtered = products.filter(p =>
+      (p.item_name || "").toLowerCase().includes(q) ||
+      (p.category || "").toLowerCase().includes(q)
+    ).slice(0, 12);
+
+    renderSuggestions(filtered);
+  });
+
+  document.addEventListener("click", function(e){
+    if (!e.target.closest(".sf-product-search")){
+      suggestionsBox.classList.remove("show");
+    }
+  });
+
+  function updateTotals(){
+    const qty = getQty();
+    const sell = getSellPrice();
+    const total = qty * sell;
+    const method = getMethod();
+
+    if (method !== lastPaymentMethod) {
+      userEditedAmountPaid = false;
+      lastPaymentMethod = method;
+    }
+
+    let paid = parseFloat(amountPaidInput?.value || 0);
+    if (isNaN(paid) || paid < 0) paid = 0;
+
+    if (isPaidMethod(method) && !userEditedAmountPaid) {
+      paid = total;
+      if (amountPaidInput) {
+        amountPaidInput.value = total.toFixed(2);
+      }
+    }
+
+    if (method === "debt") {
+      if (!amountPaidInput?.value) {
+        paid = 0;
+      } else {
+        paid = parseFloat(amountPaidInput.value || 0);
+        if (isNaN(paid) || paid < 0) paid = 0;
+      }
+    }
+
+    const balance = Math.max(total - paid, 0);
+
+    unitPricePreview.textContent = fmtMoney(sell);
+    calculatedTotalPreview.textContent = fmtMoney(total);
+    saleTotalPreview.textContent = fmtMoney(total);
+    amountPaidPreview.textContent = fmtMoney(paid);
+    balancePreview.textContent = fmtMoney(balance);
+  }
+
+  qtyMinus?.addEventListener("click", function(){
+    setQty(getQty() - 1);
+  });
+
+  qtyPlus?.addEventListener("click", function(){
+    setQty(getQty() + 1);
+  });
+
+  if (quantityInput){
+    quantityInput.setAttribute("min", "1");
+    quantityInput.setAttribute("step", "1");
+    quantityInput.addEventListener("input", updateTotals);
+    quantityInput.addEventListener("change", updateTotals);
+    quantityInput.addEventListener("keyup", updateTotals);
+  }
+
+  if (amountPaidInput){
+    amountPaidInput.addEventListener("input", function(){
+      const method = getMethod();
+      if (isPaidMethod(method)) {
+        userEditedAmountPaid = true;
+      }
+      updateTotals();
+    });
+
+    amountPaidInput.addEventListener("change", function(){
+      const method = getMethod();
+      if (isPaidMethod(method)) {
+        userEditedAmountPaid = true;
+      }
+      updateTotals();
+    });
+
+    amountPaidInput.addEventListener("keyup", function(){
+      const method = getMethod();
+      if (isPaidMethod(method)) {
+        userEditedAmountPaid = true;
+      }
+      updateTotals();
+    });
+  }
+
+  if (paymentMethodInput){
+    paymentMethodInput.addEventListener("input", updateTotals);
+    paymentMethodInput.addEventListener("change", updateTotals);
+  }
+
+  if (sellingPriceInput){
+    sellingPriceInput.addEventListener("input", updateTotals);
+    sellingPriceInput.addEventListener("change", updateTotals);
+  }
+
+  window.addEventListener("load", function(){
+    if (productSelect && productSelect.value) {
+      const existing = products.find(p => String(p.id) === String(productSelect.value));
+      if (existing) {
+        fillProduct(existing);
+      }
+    }
+
+    if (quantityInput && (!quantityInput.value || parseFloat(quantityInput.value) < 1)) {
+      quantityInput.value = 1;
+    }
+
+    lastPaymentMethod = getMethod();
+    updateTotals();
+  });
+</script>
+{% endblock %}

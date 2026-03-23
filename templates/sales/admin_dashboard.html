@@ -1,0 +1,1001 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard — Kilasi Investment{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root{
+    --dash-bg:#f8fafc;
+    --dash-card:#ffffff;
+    --dash-line:#e5e7eb;
+    --dash-line-soft:#eef2f7;
+    --dash-text:#0f172a;
+    --dash-muted:#64748b;
+    --dash-primary:#2563eb;
+    --dash-primary-2:#3b82f6;
+    --dash-success:#16a34a;
+    --dash-danger:#dc2626;
+    --dash-warning:#f59e0b;
+    --dash-purple:#7c3aed;
+    --dash-info:#0891b2;
+    --dash-dark:#111827;
+  }
+
+  .dash-shell{
+    color:var(--dash-text);
+  }
+
+  .hero-card{
+    border:0;
+    border-radius:24px;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.03)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    box-shadow:0 12px 34px rgba(15,23,42,.07);
+    padding:1.15rem 1.15rem 1.05rem;
+    margin-bottom:1rem;
+  }
+
+  .hero-title{
+    font-size:1.15rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    margin:0;
+  }
+
+  .hero-sub{
+    font-size:.78rem;
+    color:var(--dash-muted);
+    margin-top:.18rem;
+  }
+
+  .hero-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    padding:.4rem .78rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:700;
+    background:rgba(37,99,235,.09);
+    color:var(--dash-primary);
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .filter-card{
+    border:0;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffff,#fbfcff);
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .filter-main-grid{
+    display:grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap:.9rem;
+    align-items:end;
+  }
+
+  .filter-label{
+    font-size:.72rem;
+    font-weight:800;
+    color:#64748b;
+    margin-bottom:.38rem;
+    letter-spacing:.02em;
+  }
+
+  .filter-control{
+    height:44px;
+    border-radius:16px;
+    border:1px solid var(--dash-line);
+    font-size:.8rem;
+    padding:.55rem .9rem;
+    box-shadow:none !important;
+    background:#fff;
+  }
+
+  .filter-control:focus{
+    border-color:rgba(37,99,235,.35);
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.10) !important;
+  }
+
+  .filter-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:.8rem;
+    margin-top:1rem;
+    padding-top:1rem;
+    border-top:1px solid var(--dash-line-soft);
+  }
+
+  .btn-filter-main{
+    min-width:132px;
+    height:46px;
+    border:none;
+    border-radius:16px;
+    padding:0 1.1rem;
+    font-size:.82rem;
+    font-weight:800;
+    color:#fff;
+    background:linear-gradient(135deg,var(--dash-primary),var(--dash-primary-2));
+    box-shadow:0 10px 24px rgba(37,99,235,.24);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    transition:.18s ease;
+  }
+
+  .btn-filter-main:hover{
+    color:#fff;
+    transform:translateY(-1px);
+    box-shadow:0 14px 28px rgba(37,99,235,.28);
+  }
+
+  .quick-filter{
+    min-width:118px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #dbe4f0;
+    background:#eef2ff;
+    color:#334155;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 1rem;
+    transition:.18s ease;
+  }
+
+  .quick-filter:hover{
+    background:#e0e7ff;
+    color:#1e293b;
+    transform:translateY(-1px);
+  }
+
+  .quick-filter.active{
+    background:linear-gradient(135deg,#dbeafe,#e0e7ff);
+    color:#1d4ed8;
+    border-color:#bfdbfe;
+    box-shadow:0 8px 20px rgba(59,130,246,.12);
+  }
+
+  .quick-reset{
+    min-width:100px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #e2e8f0;
+    background:#fff;
+    color:#475569;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 .95rem;
+    transition:.18s ease;
+  }
+
+  .quick-reset:hover{
+    background:#f8fafc;
+    color:#0f172a;
+  }
+
+  .filter-note{
+    text-align:center;
+    margin-top:.75rem;
+    font-size:.74rem;
+    color:var(--dash-muted);
+  }
+
+  .stat-card{
+    border:0;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 10px 26px rgba(15,23,42,.06);
+    height:100%;
+    transition:.2s ease;
+    overflow:hidden;
+  }
+
+  .stat-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 16px 34px rgba(15,23,42,.09);
+  }
+
+  .stat-card .card-body{
+    padding:1rem;
+  }
+
+  .stat-card-feature{
+    border:0;
+    border-radius:22px;
+    background:
+      linear-gradient(135deg, rgba(8,145,178,.10), rgba(37,99,235,.06)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    box-shadow:0 12px 30px rgba(15,23,42,.08);
+    height:100%;
+    overflow:hidden;
+    transition:.2s ease;
+  }
+
+  .stat-card-feature:hover{
+    transform:translateY(-2px);
+    box-shadow:0 18px 36px rgba(15,23,42,.10);
+  }
+
+  .stat-card-feature .card-body{
+    padding:1rem;
+  }
+
+  .stat-icon{
+    width:52px;
+    height:52px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.15rem;
+    flex-shrink:0;
+  }
+
+  .bg-soft-success{ background:rgba(22,163,74,.12); color:var(--dash-success); }
+  .bg-soft-primary{ background:rgba(37,99,235,.12); color:var(--dash-primary); }
+  .bg-soft-danger{ background:rgba(220,38,38,.12); color:var(--dash-danger); }
+  .bg-soft-warning{ background:rgba(245,158,11,.16); color:#b45309; }
+  .bg-soft-purple{ background:rgba(124,58,237,.13); color:var(--dash-purple); }
+  .bg-soft-info{ background:rgba(8,145,178,.13); color:var(--dash-info); }
+  .bg-soft-dark{ background:rgba(17,24,39,.10); color:var(--dash-dark); }
+
+  .stat-title{
+    font-size:.78rem;
+    color:var(--dash-muted);
+    font-weight:700;
+    margin-bottom:.2rem;
+  }
+
+  .stat-amount{
+    font-size:1.32rem;
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-.02em;
+  }
+
+  .stat-note{
+    font-size:.72rem;
+    color:var(--dash-muted);
+  }
+
+  .formula-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.42rem .72rem;
+    border-radius:999px;
+    background:rgba(8,145,178,.10);
+    color:#0f766e;
+    font-size:.72rem;
+    font-weight:800;
+    border:1px solid rgba(8,145,178,.14);
+    margin-top:.65rem;
+  }
+
+  .section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.8rem;
+    margin:1.2rem 0 .7rem;
+  }
+
+  .section-title{
+    margin:0;
+    font-size:.95rem;
+    font-weight:800;
+    letter-spacing:-.01em;
+  }
+
+  .chart-card,
+  .list-card{
+    border:0;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 10px 26px rgba(15,23,42,.06);
+    height:100%;
+  }
+
+  .chart-card .card-body,
+  .list-card .card-body{
+    padding:1rem;
+  }
+
+  .chart-title{
+    font-size:.86rem;
+    font-weight:800;
+    margin-bottom:.15rem;
+  }
+
+  .chart-sub{
+    font-size:.72rem;
+    color:var(--dash-muted);
+    margin-bottom:.9rem;
+  }
+
+  .chart-box{
+    position:relative;
+    height:290px;
+  }
+
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:.8rem;
+  }
+
+  .mini-tile{
+    border-radius:18px;
+    padding:.95rem;
+    color:#fff;
+  }
+
+  .mini-tile small{
+    display:block;
+    opacity:.85;
+    font-size:.72rem;
+  }
+
+  .mini-tile strong{
+    display:block;
+    font-size:1.45rem;
+    line-height:1.1;
+    margin-top:.15rem;
+  }
+
+  .mini-dark{ background:linear-gradient(135deg,#111827,#1f2937); }
+  .mini-warn{ background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+  .mini-info{ background:linear-gradient(135deg,#0891b2,#06b6d4); }
+
+  .product-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    padding:.9rem 0;
+    border-bottom:1px solid #eef2f7;
+  }
+
+  .product-item:last-child{
+    border-bottom:0;
+  }
+
+  .product-name{
+    font-size:.84rem;
+    font-weight:700;
+    margin:0 0 .12rem;
+  }
+
+  .product-meta{
+    font-size:.72rem;
+    color:var(--dash-muted);
+  }
+
+  .stock-badge{
+    border-radius:999px;
+    padding:.3rem .6rem;
+    font-size:.72rem;
+    font-weight:700;
+  }
+
+  .pager-wrap .page-link{
+    border-radius:12px !important;
+    margin:0 .12rem;
+    border:1px solid #e5e7eb;
+    color:#334155;
+    font-size:.76rem;
+    font-weight:700;
+  }
+
+  .pager-wrap .page-item.active .page-link{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+  }
+
+  @media (max-width: 1200px){
+    .filter-main-grid{
+      grid-template-columns:1fr 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 768px){
+    .filter-main-grid{
+      grid-template-columns:1fr;
+    }
+
+    .filter-actions{
+      justify-content:center;
+    }
+
+    .btn-filter-main,
+    .quick-filter,
+    .quick-reset{
+      width:100%;
+    }
+
+    .chart-box{
+      height:250px;
+    }
+
+    .mini-grid{
+      grid-template-columns:1fr;
+    }
+  }
+</style>
+
+<div class="container-fluid py-3 dash-shell">
+
+  <div class="hero-card animate__animated animate__fadeInDown">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div>
+        <h4 class="hero-title">Dashboard</h4>
+        <div class="hero-sub">
+          Sales • Debts • Payments • Expenses
+          {% if selected_branch_obj %} • <strong>{{ selected_branch_obj.name }}</strong>{% endif %}
+        </div>
+
+        <div class="mt-2 d-flex flex-wrap gap-2">
+          <span class="hero-chip">
+            <i class="fa-solid fa-calendar-day"></i>
+            {{ range_label }}
+          </span>
+          {% if selected_branch_obj %}
+          <span class="hero-chip">
+            <i class="fa-solid fa-building"></i>
+            {{ selected_branch_obj.name }}
+          </span>
+          {% endif %}
+        </div>
+
+        {% if not profit_enabled %}
+          <div class="small text-danger mt-2">
+            Profit is using revenue only because product cost field was not found.
+            Add <b>buying_price</b> to Product for real COGS.
+          </div>
+        {% else %}
+          <div class="small text-muted mt-2">
+            Profit uses Product.<b>{{ profit_cost_field }}</b> as buying cost (COGS).
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-card animate__animated animate__fadeInUp">
+    <form method="get">
+      <div class="filter-main-grid">
+        <div>
+          <label class="filter-label">Branch</label>
+          <select name="branch" class="form-select filter-control">
+            <option value="">All Branches</option>
+            {% for b in branches %}
+              <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                {{ b.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="filter-label">From</label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="form-control filter-control">
+        </div>
+
+        <div>
+          <label class="filter-label">To</label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="form-control filter-control">
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-filter-main">
+          <i class="fa-solid fa-filter"></i>
+          Apply
+        </button>
+
+        <a class="quick-filter {% if is_today_range %}active{% endif %}"
+           href="{% url 'sales:admin_dashboard' %}?date_from={{ today_str }}&date_to={{ today_str }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+          Today
+        </a>
+
+        <a class="quick-filter"
+           href="{% url 'sales:admin_dashboard' %}?date_from={{ last7_from }}&date_to={{ today_str }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+          Last 7 Days
+        </a>
+
+        <a class="quick-reset" href="{% url 'sales:admin_dashboard' %}">
+          Reset
+        </a>
+      </div>
+
+      <div class="filter-note">
+        Choose a branch and date range, then apply the filter.
+      </div>
+    </form>
+  </div>
+
+  <!-- MAIN CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-info"><i class="fa-solid fa-chart-line"></i></div>
+          <div>
+            <div class="stat-title">Received In Selected Period</div>
+            <div class="stat-amount">Tsh {{ total_received_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">Cash + Bank + EBT + Debt Payments</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-success"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <div>
+            <div class="stat-title">Cash</div>
+            <div class="stat-amount">Tsh {{ total_cash_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ range_label }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-primary"><i class="fa-solid fa-building-columns"></i></div>
+          <div>
+            <div class="stat-title">Bank</div>
+            <div class="stat-amount">Tsh {{ total_bank_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ range_label }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-purple"><i class="fa-solid fa-credit-card"></i></div>
+          <div>
+            <div class="stat-title">EBT</div>
+            <div class="stat-amount">Tsh {{ total_ebt_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">Mobile / Transfer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECONDARY CARDS -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-lg-6 animate__animated animate__fadeInUp">
+      <div class="card stat-card-feature">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div>
+              <div class="stat-title">Remaining After Expenses</div>
+              <div class="stat-amount">Tsh {{ remaining_after_expenses_period|floatformat:0|intcomma }}</div>
+              <div class="stat-note mt-2">
+                Sales Revenue: Tsh {{ revenue_period|floatformat:0|intcomma }} •
+                Expenses: Tsh {{ expenses_period|floatformat:0|intcomma }}
+              </div>
+
+              <div class="formula-badge">
+                <i class="fa-solid fa-circle-info"></i>
+                Revenue - Expenses = Remaining
+              </div>
+
+              <div class="stat-note mt-2">
+                This is the amount left after removing expenses, before subtracting COGS.
+              </div>
+              <div class="stat-note mt-2">
+                Today Remaining: <b>Tsh {{ remaining_after_expenses_today|floatformat:0|intcomma }}</b><br>
+                Gross Profit: <b>Tsh {{ gross_profit_period|floatformat:0|intcomma }}</b><br>
+                Today Gross Profit: <b>Tsh {{ gross_profit_today|floatformat:0|intcomma }}</b>
+              </div>
+            </div>
+            <div class="stat-icon bg-soft-info"><i class="fa-solid fa-wallet"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-dark"><i class="fa-solid fa-chart-pie"></i></div>
+          <div>
+            <div class="stat-title">Profit In Selected Period</div>
+            <div class="stat-amount">Tsh {{ net_profit_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note mt-1">Remaining - COGS</div>
+            <div class="stat-note mt-1">COGS: Tsh {{ cogs_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note mt-1">Today: <b>Tsh {{ net_profit_today|floatformat:0|intcomma }}</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-danger"><i class="fa-solid fa-receipt"></i></div>
+          <div>
+            <div class="stat-title">Expenses</div>
+            <div class="stat-amount">Tsh {{ expenses_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ range_label }}</div>
+          </div>
+        </div>
+        <div class="px-3 pb-3">
+          <a class="small text-decoration-none"
+             href="{% url 'sales:expense_overview' %}{% if selected_branch %}?branch={{ selected_branch }}{% endif %}">
+             Open expenses →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTRA SUMMARY STRIP -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-primary"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div>
+            <div class="stat-title">Revenue In Selected Period</div>
+            <div class="stat-amount">Tsh {{ revenue_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">Pure sales revenue</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-warning"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div>
+            <div class="stat-title">COGS</div>
+            <div class="stat-amount">Tsh {{ cogs_period|floatformat:0|intcomma }}</div>
+            <div class="stat-note">Cost of goods sold</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-success"><i class="fa-solid fa-coins"></i></div>
+          <div>
+            <div class="stat-title">Cashflow Net Today</div>
+            <div class="stat-amount">Tsh {{ net_today_cashflow|floatformat:0|intcomma }}</div>
+            <div class="stat-note">Received today - expenses today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-purple"><i class="fa-solid fa-chart-column"></i></div>
+          <div>
+            <div class="stat-title">Overall Cashflow Net</div>
+            <div class="stat-amount">Tsh {{ net_overall_cashflow|floatformat:0|intcomma }}</div>
+            <div class="stat-note">All received - all expenses</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI OVERVIEW -->
+  <div class="mini-grid mb-4">
+    <div class="mini-tile mini-dark">
+      <small>Unpaid Debts</small>
+      <strong>{{ num_debts|default:0 }}</strong>
+      <div class="small mt-1">Tsh {{ total_outstanding_debt|floatformat:0|intcomma }}</div>
+    </div>
+
+    <div class="mini-tile mini-warn">
+      <small>Customer Credit</small>
+      <strong>Tsh {{ total_customer_credit|floatformat:0|intcomma }}</strong>
+      <div class="small mt-1">Amounts we owe customers</div>
+    </div>
+
+    <div class="mini-tile mini-info">
+      <small>Total Transactions</small>
+      <strong>{{ total_transactions|default:0 }}</strong>
+      <div class="small mt-1">{{ range_label }}</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section-head">
+    <h5 class="section-title">Charts & Trends</h5>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-xl-8">
+      <div class="card chart-card">
+        <div class="card-body">
+          <div class="chart-title">Daily Sales vs Expenses</div>
+          <div class="chart-sub">Inside the currently selected date range</div>
+          <div class="chart-box">
+            <canvas id="dailyTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card chart-card">
+        <div class="card-body">
+          <div class="chart-title">Payment Mix</div>
+          <div class="chart-sub">Cash, Bank, EBT and debt collections</div>
+          <div class="chart-box">
+            <canvas id="paymentMixChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card chart-card">
+        <div class="card-body">
+          <div class="chart-title">Last 6 Months Revenue vs Expenses</div>
+          <div class="chart-sub">Branch-aware long-term trend</div>
+          <div class="chart-box">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTION TYPES -->
+  <div class="section-head">
+    <h5 class="section-title">Transaction Types</h5>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card stat-card text-white" style="background:linear-gradient(135deg,#16a34a,#22c55e);">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <div class="small opacity-75">Cash Transactions</div>
+            <div class="display-6 fw-bold mb-0">{{ num_cash_sales|default:0 }}</div>
+          </div>
+          <i class="fa-solid fa-receipt fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card stat-card text-white" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <div class="small opacity-75">Bank Transactions</div>
+            <div class="display-6 fw-bold mb-0">{{ num_bank_sales|default:0 }}</div>
+          </div>
+          <i class="fa-solid fa-building-columns fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card stat-card text-white" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <div class="small opacity-75">EBT Transactions</div>
+            <div class="display-6 fw-bold mb-0">{{ num_ebt_sales|default:0 }}</div>
+          </div>
+          <i class="fa-solid fa-credit-card fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT PRODUCTS -->
+  <div class="section-head">
+    <h5 class="section-title">Recently Added Products</h5>
+    <a href="{% url 'sales:product_list' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+      <i class="fa-solid fa-list me-1"></i> View All
+    </a>
+  </div>
+
+  <div class="card list-card mb-3">
+    <div class="card-body">
+      {% for prod in recent_products %}
+        {% with sp=prod.selling_price|default_if_none:0 %}
+        {% with st=prod.branch_qty|default_if_none:prod.stock|default_if_none:0 %}
+        {% with rl=prod.reorder_level|default_if_none:0 %}
+          <div class="product-item">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon bg-soft-primary" style="width:42px;height:42px;border-radius:14px;font-size:1rem;">
+                <i class="fa-solid fa-box"></i>
+              </div>
+              <div>
+                <p class="product-name mb-0">
+                  <a href="{% url 'sales:product_detail' prod.pk %}" class="text-decoration-none">
+                    {{ prod.name }}
+                  </a>
+                </p>
+                <div class="product-meta">
+                  {% if prod.category %}{{ prod.category.name }}{% else %}—{% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <div class="fw-bold">Tsh {{ sp|floatformat:0|intcomma }}</div>
+              <span class="stock-badge {% if st|add:0 > rl|add:0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %}">
+                Stock: {{ st|default:0 }}
+              </span>
+            </div>
+          </div>
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+      {% empty %}
+        <div class="text-center text-muted py-4">No recently added products.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if recent_products.has_other_pages %}
+    <nav class="pager-wrap">
+      <ul class="pagination justify-content-center mb-0">
+        {% if recent_products.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?recent_page={{ recent_products.previous_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}&date_from={{ date_from }}&date_to={{ date_to }}">
+              « Prev
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">« Prev</span></li>
+        {% endif %}
+
+        {% for num in recent_products.paginator.page_range %}
+          {% if recent_products.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num >= recent_products.number|add:"-2" and num <= recent_products.number|add:"2" %}
+            <li class="page-item">
+              <a class="page-link" href="?recent_page={{ num }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}&date_from={{ date_from }}&date_to={{ date_to }}">
+                {{ num }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if recent_products.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?recent_page={{ recent_products.next_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}&date_from={{ date_from }}&date_to={{ date_to }}">
+              Next »
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next »</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+
+<script>
+  const dailyLabels = {{ chart_labels_json|safe }};
+  const dailySales = {{ chart_sales_json|safe }};
+  const dailyExpenses = {{ chart_expenses_json|safe }};
+
+  const paymentMixLabels = {{ payment_mix_labels_json|safe }};
+  const paymentMixValues = {{ payment_mix_values_json|safe }};
+
+  const monthLabels = {{ month_labels_json|safe }};
+  const monthRevenue = {{ month_received_values_json|safe }};
+  const monthExpenses = {{ month_expense_values_json|safe }};
+
+  new Chart(document.getElementById('dailyTrendChart'), {
+    type: 'line',
+    data: {
+      labels: dailyLabels,
+      datasets: [
+        {
+          label: 'Sales Received',
+          data: dailySales,
+          tension: 0.35,
+          fill: true
+        },
+        {
+          label: 'Expenses',
+          data: dailyExpenses,
+          tension: 0.35,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('paymentMixChart'), {
+    type: 'doughnut',
+    data: {
+      labels: paymentMixLabels,
+      datasets: [{
+        data: paymentMixValues,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('monthlyTrendChart'), {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: 'Revenue Received',
+          data: monthRevenue,
+          borderRadius: 8
+        },
+        {
+          label: 'Expenses',
+          data: monthExpenses,
+          borderRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

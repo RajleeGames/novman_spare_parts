@@ -1,0 +1,737 @@
+{# templates/sales/kilasi_sales_history.html #}
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Sales History — Kilasi Investment{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --sh-bg:#f8fafc;
+    --sh-card:#ffffff;
+    --sh-line:#e2e8f0;
+    --sh-line-soft:#eef2f7;
+    --sh-text:#0f172a;
+    --sh-muted:#64748b;
+    --sh-primary:#2563eb;
+    --sh-primary-soft:rgba(37,99,235,.08);
+    --sh-success:#16a34a;
+    --sh-warning:#f59e0b;
+    --sh-danger:#dc2626;
+    --sh-dark:#0f172a;
+    --sh-shadow:0 10px 30px rgba(15,23,42,.06);
+  }
+
+  .sh-wrap{
+    max-width:1240px;
+    margin:.8rem auto 1.15rem;
+    padding:0 .7rem;
+    color:var(--sh-text);
+  }
+
+  .sh-hero{
+    border-radius:18px;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    border:1px solid var(--sh-line);
+    box-shadow:var(--sh-shadow);
+    padding:.85rem .95rem;
+    margin-bottom:.85rem;
+  }
+
+  .sh-hero-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.7rem;
+  }
+
+  .sh-title{
+    margin:0;
+    font-size:.94rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    color:var(--sh-text);
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+  }
+
+  .sh-sub{
+    margin-top:.2rem;
+    color:var(--sh-muted);
+    font-size:.67rem;
+  }
+
+  .sh-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.38rem;
+    margin-bottom:.38rem;
+  }
+
+  .sh-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.32rem;
+    padding:.24rem .52rem;
+    border-radius:999px;
+    background:var(--sh-primary-soft);
+    color:var(--sh-primary);
+    font-size:.64rem;
+    font-weight:800;
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .sh-badge.soft{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--sh-line);
+  }
+
+  .sh-top-actions{
+    display:flex;
+    gap:.46rem;
+    flex-wrap:wrap;
+  }
+
+  .sh-link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.36rem;
+    height:34px;
+    padding:0 .72rem;
+    border-radius:10px;
+    border:1px solid var(--sh-line);
+    background:#fff;
+    color:#334155;
+    text-decoration:none;
+    font-size:.66rem;
+    font-weight:800;
+  }
+
+  .sh-link-btn:hover{
+    color:var(--sh-text);
+    border-color:#cbd5e1;
+  }
+
+  .sh-filter-card,
+  .sh-table-card{
+    background:var(--sh-card);
+    border:1px solid var(--sh-line);
+    border-radius:18px;
+    box-shadow:var(--sh-shadow);
+    overflow:hidden;
+  }
+
+  .sh-filter-card{
+    margin-bottom:.85rem;
+  }
+
+  .sh-filter-body{
+    padding:.85rem;
+  }
+
+  .sh-field label{
+    display:block;
+    margin-bottom:.26rem;
+    font-size:.62rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  .sh-control{
+    width:100%;
+    height:35px;
+    border-radius:10px;
+    border:1px solid var(--sh-line);
+    background:#fff;
+    color:var(--sh-text);
+    font-size:.7rem;
+    box-shadow:none !important;
+  }
+
+  .sh-control:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .16rem rgba(37,99,235,.10) !important;
+  }
+
+  .sh-btn,
+  .sh-btn-light{
+    height:35px;
+    border:none;
+    border-radius:10px;
+    padding:0 .75rem;
+    font-size:.68rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.36rem;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+
+  .sh-btn{
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+  }
+
+  .sh-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sh-btn-light{
+    background:#fff;
+    color:#475569;
+    border:1px solid var(--sh-line);
+  }
+
+  .sh-btn-light:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .sh-table-head{
+    padding:.76rem .88rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.6rem;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--sh-line-soft);
+  }
+
+  .sh-table-title{
+    font-size:.74rem;
+    font-weight:800;
+    color:var(--sh-text);
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    margin:0;
+  }
+
+  .sh-table-note{
+    display:inline-flex;
+    align-items:center;
+    gap:.3rem;
+    padding:.24rem .48rem;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#475569;
+    font-size:.63rem;
+    font-weight:700;
+    border:1px solid var(--sh-line);
+  }
+
+  .sh-table{
+    margin:0;
+    width:100%;
+  }
+
+  .sh-table thead th{
+    background:linear-gradient(180deg, #f8fbff, #f1f6ff);
+    color:#475569;
+    font-size:.61rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:1px solid var(--sh-line);
+    padding:.62rem .64rem;
+    white-space:nowrap;
+  }
+
+  .sh-table tbody td{
+    vertical-align:middle;
+    border-top:1px solid var(--sh-line-soft);
+    padding:.58rem .64rem;
+    font-size:.67rem;
+    color:var(--sh-text);
+  }
+
+  .sh-table tbody tr:hover{
+    background:#fbfdff;
+  }
+
+  .sh-id-link{
+    text-decoration:none;
+    font-weight:800;
+  }
+
+  .sh-main{
+    font-weight:700;
+    color:var(--sh-text);
+    font-size:.68rem;
+    line-height:1.18;
+  }
+
+  .sh-meta{
+    font-size:.59rem;
+    color:var(--sh-muted);
+    margin-top:.1rem;
+    line-height:1.25;
+  }
+
+  .sh-product-name{
+    font-weight:800;
+    color:var(--sh-text);
+    font-size:.67rem;
+    line-height:1.2;
+  }
+
+  .sh-product-extra{
+    display:inline-flex;
+    margin-top:.18rem;
+    padding:.15rem .42rem;
+    border-radius:999px;
+    font-size:.56rem;
+    font-weight:800;
+    background:#eff6ff;
+    color:#1d4ed8;
+    border:1px solid #dbeafe;
+  }
+
+  .sh-mono{
+    font-variant-numeric:tabular-nums;
+  }
+
+  .sh-status{
+    display:inline-flex;
+    align-items:center;
+    gap:.26rem;
+    padding:.22rem .42rem;
+    border-radius:999px;
+    font-size:.6rem;
+    font-weight:800;
+    border:1px solid transparent;
+    margin-right:.16rem;
+    margin-bottom:.14rem;
+  }
+
+  .sh-status.cash{
+    background:rgba(22,163,74,.08);
+    color:var(--sh-success);
+    border-color:rgba(22,163,74,.14);
+  }
+
+  .sh-status.bank{
+    background:rgba(37,99,235,.08);
+    color:var(--sh-primary);
+    border-color:rgba(37,99,235,.14);
+  }
+
+  .sh-status.ebt{
+    background:rgba(79,70,229,.10);
+    color:#4338ca;
+    border-color:rgba(79,70,229,.14);
+  }
+
+  .sh-status.debt{
+    background:rgba(245,158,11,.10);
+    color:#b45309;
+    border-color:rgba(245,158,11,.14);
+  }
+
+  .sh-status.paid{
+    background:rgba(15,23,42,.08);
+    color:var(--sh-dark);
+    border-color:rgba(15,23,42,.12);
+  }
+
+  .sh-status.unpaid{
+    background:rgba(220,38,38,.08);
+    color:var(--sh-danger);
+    border-color:rgba(220,38,38,.14);
+  }
+
+  .sh-action{
+    display:inline-flex;
+    align-items:center;
+    gap:.34rem;
+    height:30px;
+    padding:0 .6rem;
+    border-radius:10px;
+    text-decoration:none;
+    font-size:.64rem;
+    font-weight:800;
+  }
+
+  .sh-action.view{
+    border:1px solid rgba(15,23,42,.12);
+    background:#fff;
+    color:#334155;
+  }
+
+  .sh-action.view:hover{
+    color:#0f172a;
+    border-color:#cbd5e1;
+  }
+
+  .sh-action.receipt{
+    border:1px solid rgba(15,23,42,.14);
+    background:rgba(15,23,42,.06);
+    color:#0f172a;
+  }
+
+  .sh-action.receipt:hover{
+    background:rgba(15,23,42,.10);
+    color:#0f172a;
+  }
+
+  .sh-empty{
+    background:#fff;
+    border:1px dashed var(--sh-line);
+    border-radius:14px;
+    padding:1.35rem .8rem;
+    text-align:center;
+    color:var(--sh-muted);
+    margin:.8rem;
+  }
+
+  .sh-empty i{
+    font-size:1rem;
+    color:#94a3b8;
+    margin-bottom:.35rem;
+  }
+
+  .sh-empty h6{
+    font-size:.78rem;
+    font-weight:800;
+    color:var(--sh-text);
+    margin-bottom:.1rem;
+  }
+
+  .sh-empty p{
+    font-size:.66rem;
+    margin:0;
+  }
+
+  .sh-pagination{
+    padding:.8rem .88rem;
+    border-top:1px solid var(--sh-line-soft);
+    background:rgba(255,255,255,.7);
+  }
+
+  .sh-pagination .pagination{
+    gap:.3rem;
+  }
+
+  .sh-pagination .page-link{
+    border:none;
+    min-width:33px;
+    height:33px;
+    border-radius:9px !important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.66rem;
+    font-weight:700;
+    color:#475569;
+    background:#fff;
+    border:1px solid var(--sh-line);
+    box-shadow:none;
+  }
+
+  .sh-pagination .page-item.disabled .page-link{
+    color:#94a3b8;
+    background:#f8fafc;
+    border-color:var(--sh-line);
+  }
+
+  @media(max-width:768px){
+    .sh-wrap{
+      padding:0 .55rem;
+    }
+
+    .sh-hero,
+    .sh-filter-body{
+      padding:.72rem;
+    }
+
+    .sh-table thead{
+      display:none;
+    }
+
+    .sh-table,
+    .sh-table tbody,
+    .sh-table tr,
+    .sh-table td{
+      display:block;
+      width:100%;
+    }
+
+    .sh-table tbody tr{
+      padding:.16rem 0;
+    }
+
+    .sh-table tbody td{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      padding:.56rem .6rem;
+    }
+
+    .sh-table tbody td::before{
+      content:attr(data-label);
+      font-size:.57rem;
+      font-weight:800;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      min-width:82px;
+    }
+
+    .sh-action{
+      width:auto;
+      justify-content:center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sh-wrap">
+
+  <div class="sh-hero">
+    <div class="sh-hero-top">
+      <div>
+        <div class="sh-badges">
+          <span class="sh-badge">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Sales History
+          </span>
+
+          {% if selected_branch_obj %}
+            <span class="sh-badge soft">
+              <i class="fa-solid fa-building"></i>
+              {{ selected_branch_obj.name }}
+            </span>
+          {% else %}
+            <span class="sh-badge soft">
+              <i class="fa-solid fa-layer-group"></i>
+              All Branches
+            </span>
+          {% endif %}
+        </div>
+
+        <h2 class="sh-title">
+          <i class="fa-solid fa-file-invoice-dollar text-primary"></i>
+          Invoice History
+        </h2>
+
+        <div class="sh-sub">
+          Clean history table. Full item details stay inside the invoice View page.
+        </div>
+      </div>
+
+      <div class="sh-top-actions">
+        <a href="{% url 'sales:kilasi_sales_report' %}{% if selected_branch %}?branch={{ selected_branch }}{% endif %}"
+           class="sh-link-btn">
+          <i class="fa-solid fa-calendar-day"></i>
+          Daily Report
+        </a>
+
+        <a href="{% url 'sales:enhanced_sales_report' %}{% if selected_branch %}?branch={{ selected_branch }}{% endif %}"
+           class="sh-link-btn">
+          <i class="fa-solid fa-chart-simple"></i>
+          Enhanced
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% if branches %}
+  <div class="sh-filter-card">
+    <div class="sh-filter-body">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-12 col-md-7">
+          <div class="sh-field">
+            <label>Branch</label>
+            <select name="branch" class="form-select sh-control">
+              <option value="">All Branches</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-5 d-flex gap-2">
+          <button class="btn sh-btn w-100">
+            <i class="fa-solid fa-filter"></i>
+            Apply
+          </button>
+
+          <a class="sh-btn-light w-100"
+             href="{% url 'sales:kilasi_sales_history' %}">
+            <i class="fa-solid fa-rotate-left"></i>
+            Reset
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="sh-table-card">
+    <div class="sh-table-head">
+      <h3 class="sh-table-title">
+        <i class="fa-solid fa-list"></i>
+        Invoices
+      </h3>
+
+      <div class="sh-table-note">
+        <i class="fa-solid fa-file-lines"></i>
+        Showing {{ invoice_rows|length }} record{{ invoice_rows|length|pluralize }}
+      </div>
+    </div>
+
+    {% if invoice_rows %}
+      <div class="table-responsive">
+        <table class="table sh-table mb-0">
+          <thead>
+            <tr>
+              <th class="sh-mono">ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Seller</th>
+              <th>Status</th>
+              <th class="text-end sh-mono">Total</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for row in invoice_rows %}
+              {% with inv=row.invoice %}
+              <tr>
+                <td data-label="ID" class="sh-mono">
+                  <a class="sh-id-link" href="{% url 'sales:invoice_detail' inv.id %}">
+                    #{{ inv.id }}
+                  </a>
+                </td>
+
+                <td data-label="Date" class="sh-mono">
+                  {{ inv.created_at|date:"Y-m-d H:i" }}
+                </td>
+
+                <td data-label="Customer">
+                  <div class="sh-main">{{ inv.customer|default:"Walk-in" }}</div>
+                  <div class="sh-meta d-md-none">{{ inv.created_at|date:"Y-m-d H:i" }}</div>
+                </td>
+
+                <td data-label="Product">
+                  <div class="sh-product-name">{{ row.first_product_name }}</div>
+                  {% if row.more_items_count > 0 %}
+                    <div class="sh-product-extra">+{{ row.more_items_count }} more</div>
+                  {% elif row.items_count == 0 %}
+                    <div class="sh-meta">No invoice items</div>
+                  {% endif %}
+                </td>
+
+                <td data-label="Seller">
+                  <div class="sh-main">{{ inv.seller.username }}</div>
+                </td>
+
+                <td data-label="Status">
+                  {% if inv.status == "cash" %}
+                    <span class="sh-status cash">Cash</span>
+                  {% elif inv.status == "bank" %}
+                    <span class="sh-status bank">Bank</span>
+                  {% elif inv.status == "ebt" %}
+                    <span class="sh-status ebt">EBT</span>
+                  {% elif inv.status == "debt" %}
+                    <span class="sh-status debt">Debt</span>
+                  {% else %}
+                    <span class="sh-status paid">{{ inv.status|upper }}</span>
+                  {% endif %}
+
+                  {% if inv.paid %}
+                    <span class="sh-status paid">Paid</span>
+                  {% else %}
+                    {% if inv.status == "debt" %}
+                      <span class="sh-status unpaid">Unpaid</span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+
+                <td data-label="Total" class="text-end sh-mono fw-bold">
+                  Tsh {{ inv.total_amount|floatformat:0|intcomma }}
+                </td>
+
+                <td data-label="Actions" class="text-end">
+                  <div class="d-flex justify-content-end gap-2 flex-wrap">
+                    <a class="sh-action view"
+                       href="{% url 'sales:invoice_detail' inv.id %}">
+                      <i class="fa-solid fa-eye"></i>
+                      <span class="d-none d-md-inline">View</span>
+                    </a>
+
+                    <a class="sh-action receipt"
+                       href="{% url 'sales:invoice_receipt' inv.id %}?autoprint=1"
+                       target="_blank" rel="noopener">
+                      <i class="fa-solid fa-receipt"></i>
+                      <span class="d-none d-md-inline">Receipt</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="sh-empty">
+        <i class="fa-regular fa-face-frown"></i>
+        <h6>No invoices found</h6>
+        <p>Try changing the selected branch or create a new sale.</p>
+      </div>
+    {% endif %}
+
+    {% if is_paginated %}
+      <div class="sh-pagination">
+        <nav>
+          <ul class="pagination mb-0 justify-content-center flex-wrap">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                  ‹ Prev
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">‹ Prev</span></li>
+            {% endif %}
+
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+                  Next ›
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Next ›</span></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

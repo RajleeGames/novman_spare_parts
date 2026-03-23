@@ -1,0 +1,729 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{{ product.name }} — Kilasi Investment{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --pd-bg:#f8fafc;
+    --pd-card:#ffffff;
+    --pd-line:#e2e8f0;
+    --pd-line-soft:#eef2f7;
+    --pd-text:#0f172a;
+    --pd-muted:#64748b;
+    --pd-primary:#2563eb;
+    --pd-primary-soft:rgba(37,99,235,.08);
+    --pd-primary-soft-2:rgba(37,99,235,.12);
+    --pd-success:#16a34a;
+    --pd-danger:#dc2626;
+    --pd-warning:#f59e0b;
+    --pd-shadow:0 10px 30px rgba(15,23,42,.06);
+    --pd-radius:16px;
+    --pd-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .pd-wrap{
+    color:var(--pd-text);
+  }
+
+  .pd-hero{
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.04)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    border:1px solid var(--pd-line);
+    border-radius:20px;
+    box-shadow:var(--pd-shadow);
+    padding:1rem 1rem .95rem;
+    margin-bottom:1rem;
+  }
+
+  .pd-hero-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.8rem;
+  }
+
+  .pd-back{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    height:36px;
+    padding:0 .85rem;
+    border-radius:12px;
+    border:1px solid var(--pd-line);
+    background:#fff;
+    color:#334155;
+    text-decoration:none;
+    font-size:.77rem;
+    font-weight:700;
+  }
+
+  .pd-back:hover{
+    color:var(--pd-text);
+    border-color:#cbd5e1;
+  }
+
+  .pd-top-chips{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:.45rem;
+  }
+
+  .pd-chip,
+  .pd-branch-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.38rem;
+    padding:.32rem .62rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:600;
+    border:1px solid var(--pd-line);
+    background:#fff;
+    color:#475569;
+  }
+
+  .pd-branch-badge{
+    background:var(--pd-primary-soft);
+    color:var(--pd-primary);
+    border-color:rgba(37,99,235,.12);
+  }
+
+  .pd-chip strong{
+    color:var(--pd-text);
+    font-family:var(--pd-mono);
+    font-weight:800;
+  }
+
+  .pd-title{
+    margin:.85rem 0 .18rem;
+    font-size:1.08rem;
+    font-weight:700;
+    letter-spacing:-.02em;
+    color:var(--pd-text);
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+  }
+
+  .pd-sub{
+    font-size:.75rem;
+    color:var(--pd-muted);
+    margin:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.45rem;
+    align-items:center;
+  }
+
+  .pd-inline-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.28rem .55rem;
+    border-radius:999px;
+    background:#f8fafc;
+    border:1px solid var(--pd-line);
+    color:#475569;
+    font-size:.7rem;
+    font-weight:600;
+  }
+
+  .pd-stats{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:.8rem;
+    margin-bottom:1rem;
+  }
+
+  .pd-stat{
+    background:var(--pd-card);
+    border:1px solid var(--pd-line);
+    border-radius:18px;
+    box-shadow:var(--pd-shadow);
+    padding:.95rem;
+  }
+
+  .pd-stat-label{
+    font-size:.7rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:.35rem;
+  }
+
+  .pd-stat-value{
+    font-size:1rem;
+    font-weight:800;
+    color:var(--pd-text);
+    line-height:1.2;
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    flex-wrap:wrap;
+  }
+
+  .pd-mono{
+    font-family:var(--pd-mono);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .pd-price-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:90px;
+    padding:.36rem .62rem;
+    border-radius:999px;
+    background:rgba(37,99,235,.08);
+    color:var(--pd-primary);
+    font-size:.74rem;
+    font-weight:700;
+    border:1px solid rgba(37,99,235,.10);
+  }
+
+  .pd-stock-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    justify-content:center;
+    min-width:82px;
+    padding:.36rem .62rem;
+    border-radius:999px;
+    font-size:.74rem;
+    font-weight:700;
+    border:1px solid transparent;
+  }
+
+  .pd-stock-pill.good{
+    background:rgba(22,163,74,.08);
+    color:var(--pd-success);
+    border-color:rgba(22,163,74,.10);
+  }
+
+  .pd-stock-pill.low{
+    background:rgba(220,38,38,.08);
+    color:var(--pd-danger);
+    border-color:rgba(220,38,38,.10);
+  }
+
+  .pd-stock-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:currentColor;
+    opacity:.85;
+  }
+
+  .pd-status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    padding:.36rem .62rem;
+    border-radius:999px;
+    font-size:.74rem;
+    font-weight:700;
+    border:1px solid transparent;
+  }
+
+  .pd-status-pill.good{
+    background:rgba(22,163,74,.08);
+    color:var(--pd-success);
+    border-color:rgba(22,163,74,.10);
+  }
+
+  .pd-status-pill.low{
+    background:rgba(245,158,11,.10);
+    color:#b45309;
+    border-color:rgba(245,158,11,.14);
+  }
+
+  .pd-section{
+    margin-top:1rem;
+    background:var(--pd-card);
+    border:1px solid var(--pd-line);
+    border-radius:20px;
+    box-shadow:var(--pd-shadow);
+    padding:1rem;
+  }
+
+  .pd-section-title{
+    margin:0 0 .85rem;
+    font-size:.92rem;
+    font-weight:700;
+    color:var(--pd-text);
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+
+  .pd-form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr auto;
+    gap:.75rem;
+    align-items:end;
+  }
+
+  .pd-field label{
+    display:block;
+    margin-bottom:.35rem;
+    font-size:.72rem;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+
+  .pd-field input,
+  .pd-field select{
+    width:100%;
+    height:40px;
+    border-radius:12px;
+    border:1px solid var(--pd-line);
+    background:#fff;
+    font-size:.78rem;
+    color:var(--pd-text);
+    padding:.35rem .8rem;
+    outline:none;
+    box-shadow:none !important;
+  }
+
+  .pd-field input:focus,
+  .pd-field select:focus{
+    border-color:rgba(37,99,235,.38);
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10) !important;
+  }
+
+  .pd-action-group{
+    display:flex;
+    gap:.55rem;
+    align-items:end;
+    flex-wrap:wrap;
+  }
+
+  .pd-btn{
+    height:40px;
+    border:none;
+    border-radius:12px;
+    padding:0 .95rem;
+    font-size:.77rem;
+    font-weight:700;
+    background:linear-gradient(135deg, #2563eb, #3b82f6);
+    color:#fff;
+    display:inline-flex;
+    align-items:center;
+    gap:.42rem;
+    white-space:nowrap;
+    transition:.18s ease;
+  }
+
+  .pd-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .pd-btn-danger{
+    background:linear-gradient(135deg, #dc2626, #ef4444);
+  }
+
+  .pd-btn-danger:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .pd-tip{
+    margin-top:.7rem;
+    font-size:.72rem;
+    color:var(--pd-muted);
+  }
+
+  .pd-warning-box{
+    margin-top:.8rem;
+    padding:.75rem .85rem;
+    border-radius:14px;
+    border:1px solid rgba(245,158,11,.20);
+    background:rgba(245,158,11,.08);
+    color:#92400e;
+    font-size:.73rem;
+    line-height:1.5;
+  }
+
+  .pd-warning-box i{
+    margin-right:.35rem;
+  }
+
+  .pd-table-card{
+    background:var(--pd-card);
+    border:1px solid var(--pd-line);
+    border-radius:18px;
+    overflow:hidden;
+  }
+
+  .pd-table{
+    margin:0;
+    width:100%;
+  }
+
+  .pd-table thead th{
+    background:linear-gradient(180deg, #f8fbff, #f1f6ff);
+    color:#475569;
+    font-size:.72rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:1px solid var(--pd-line);
+    padding:.82rem .95rem;
+    white-space:nowrap;
+  }
+
+  .pd-table tbody td{
+    padding:.82rem .95rem;
+    vertical-align:middle;
+    border-top:1px solid var(--pd-line-soft);
+    font-size:.79rem;
+    color:var(--pd-text);
+  }
+
+  .pd-table tbody tr:hover{
+    background:#fbfdff;
+  }
+
+  .pd-empty{
+    background:#fff;
+    border:1px dashed var(--pd-line);
+    border-radius:16px;
+    padding:1.5rem 1rem;
+    text-align:center;
+    color:var(--pd-muted);
+  }
+
+  .pd-empty i{
+    font-size:1.15rem;
+    color:#94a3b8;
+    margin-bottom:.45rem;
+  }
+
+  .pd-empty h6{
+    font-size:.88rem;
+    font-weight:700;
+    color:var(--pd-text);
+    margin-bottom:.15rem;
+  }
+
+  .pd-empty p{
+    font-size:.74rem;
+    margin:0;
+  }
+
+  @media (max-width: 991px){
+    .pd-stats{
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+
+    .pd-form-row{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+
+  @media (max-width: 768px){
+    .pd-hero{
+      padding:.9rem;
+    }
+
+    .pd-stats{
+      grid-template-columns:1fr;
+    }
+
+    .pd-form-row{
+      grid-template-columns:1fr;
+    }
+
+    .pd-action-group{
+      width:100%;
+    }
+
+    .pd-btn{
+      width:100%;
+      justify-content:center;
+    }
+
+    .pd-table thead{
+      display:none;
+    }
+
+    .pd-table,
+    .pd-table tbody,
+    .pd-table tr,
+    .pd-table td{
+      display:block;
+      width:100%;
+    }
+
+    .pd-table tbody tr{
+      padding:.2rem 0;
+    }
+
+    .pd-table tbody td{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      padding:.72rem .75rem;
+    }
+
+    .pd-table tbody td::before{
+      content:attr(data-label);
+      font-size:.68rem;
+      font-weight:700;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      min-width:95px;
+    }
+  }
+</style>
+
+<div class="pd-wrap">
+  <div class="pd-hero">
+    <div class="pd-hero-top">
+      <a class="pd-back" href="{% url 'sales:product_list' %}">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back
+      </a>
+
+      <div class="pd-top-chips">
+        {% if use_branch_stock and branch %}
+          <span class="pd-branch-badge" title="You are viewing branch stock">
+            <i class="fa-solid fa-location-dot"></i>
+            {{ branch.name }}
+          </span>
+        {% endif %}
+
+        <span class="pd-chip" title="Product ID">
+          <i class="fa-solid fa-hashtag"></i>
+          ID <strong>{{ product.id }}</strong>
+        </span>
+
+        {% if product.barcode %}
+          <span class="pd-chip" title="Barcode">
+            <i class="fa-solid fa-barcode"></i>
+            <strong>{{ product.barcode }}</strong>
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <h2 class="pd-title">
+      <i class="fa-solid fa-box text-primary"></i>
+      {{ product.name }}
+    </h2>
+
+    <p class="pd-sub">
+      <span class="pd-inline-badge">
+        <i class="fa-solid fa-building"></i>
+        Kilasi Investment
+      </span>
+
+      <span class="pd-inline-badge">
+        <i class="fa-solid fa-layer-group"></i>
+        {{ product.category.name|default:"Uncategorized" }}
+      </span>
+
+      {% if use_branch_stock %}
+        <span class="pd-inline-badge">
+          <i class="fa-solid fa-shop"></i>
+          Branch stock only
+        </span>
+      {% else %}
+        <span class="pd-inline-badge">
+          <i class="fa-solid fa-warehouse"></i>
+          Total stock view
+        </span>
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="pd-stats">
+    <div class="pd-stat">
+      <div class="pd-stat-label">Selling Price</div>
+      <div class="pd-stat-value">
+        <span class="pd-price-pill">Tsh {{ product.selling_price|floatformat:2|intcomma }}</span>
+      </div>
+    </div>
+
+    <div class="pd-stat">
+      <div class="pd-stat-label">{% if use_branch_stock %}Branch Stock{% else %}Total Stock{% endif %}</div>
+      <div class="pd-stat-value">
+        <span class="pd-stock-pill {% if current_stock|default:0 > product.reorder_level|default:0 %}good{% else %}low{% endif %}">
+          <span class="pd-stock-dot"></span>
+          {{ current_stock|default:0 }}
+        </span>
+      </div>
+    </div>
+
+    <div class="pd-stat">
+      <div class="pd-stat-label">Reorder Level</div>
+      <div class="pd-stat-value pd-mono">
+        <i class="fa-solid fa-bell text-warning"></i>
+        {{ product.reorder_level|default:0 }}
+      </div>
+    </div>
+
+    <div class="pd-stat">
+      <div class="pd-stat-label">Status</div>
+      <div class="pd-stat-value">
+        {% if current_stock|default:0 <= product.reorder_level %}
+          <span class="pd-status-pill low">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Low Stock
+          </span>
+        {% else %}
+          <span class="pd-status-pill good">
+            <i class="fa-solid fa-circle-check"></i>
+            In Stock
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if is_admin %}
+  <div class="pd-section">
+    <h4 class="pd-section-title">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      Manage Product Stock
+    </h4>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="pd-form-row">
+        <div class="pd-field">
+          <label>Add Quantity</label>
+          <input type="number" name="add_qty" min="1" placeholder="Enter quantity">
+        </div>
+
+        <div class="pd-field">
+          <label>Branch</label>
+          <select name="branch_id" required>
+            <option value="">— Select branch —</option>
+            {% for b in branches %}
+              <option value="{{ b.id }}">{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="pd-field">
+          <label>Note</label>
+          <input type="text" name="note" placeholder="e.g. Supplier delivery or stock reset">
+        </div>
+
+        <div class="pd-action-group">
+          <button type="submit" name="action" value="add" class="pd-btn">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save
+          </button>
+
+          <button
+            type="submit"
+            name="action"
+            value="reset"
+            class="pd-btn pd-btn-danger"
+            onclick="return confirm('Are you sure you want to reset this branch stock to 0?');"
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+            Reset Stock
+          </button>
+        </div>
+      </div>
+
+      <div class="pd-tip">
+        Tip: Save adds stock to the selected branch. Reset Stock safely creates an adjustment entry and returns selected branch stock to zero.
+      </div>
+
+      <div class="pd-warning-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Reset does not delete history. It creates a stock adjustment so your records stay correct.
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if is_admin and branch_stocks %}
+  <div class="pd-section">
+    <h4 class="pd-section-title">
+      <i class="fa-solid fa-warehouse"></i>
+      Stock by Branch
+    </h4>
+
+    <div class="pd-table-card">
+      <div class="table-responsive">
+        <table class="table pd-table align-middle">
+          <thead>
+            <tr>
+              <th>Branch</th>
+              <th class="text-end" style="width:160px;">Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in branch_stocks %}
+            <tr>
+              <td data-label="Branch">{{ s.branch.name }}</td>
+              <td data-label="Quantity" class="text-end pd-mono">{{ s.quantity }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="pd-section">
+    <h4 class="pd-section-title">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      Stock History{% if use_branch_stock and branch %} — {{ branch.name }}{% endif %}
+    </h4>
+
+    {% if entries %}
+      <div class="pd-table-card">
+        <div class="table-responsive">
+          <table class="table pd-table align-middle">
+            <thead>
+              <tr>
+                <th style="width:170px;">Date</th>
+                <th style="width:120px;">Change</th>
+                <th style="width:170px;">Branch</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in entries %}
+              <tr>
+                <td data-label="Date" class="pd-mono">{{ e.timestamp|date:"Y-m-d H:i" }}</td>
+                <td data-label="Change" class="pd-mono">
+                  {% if e.change > 0 %}+{% endif %}{{ e.change }}
+                </td>
+                <td data-label="Branch">{{ e.branch.name|default:"—" }}</td>
+                <td data-label="Note">{{ e.note|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <div class="pd-empty">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <h6>No stock history yet</h6>
+        <p>Once stock changes happen, they will appear here.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
