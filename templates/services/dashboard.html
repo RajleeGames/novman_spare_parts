@@ -1,0 +1,799 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Services Dashboard{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root{
+    --srv-bg:#f8fafc;
+    --srv-card:#ffffff;
+    --srv-line:#e5e7eb;
+    --srv-line-soft:#eef2f7;
+    --srv-text:#0f172a;
+    --srv-muted:#64748b;
+    --srv-primary:#2563eb;
+    --srv-primary-2:#3b82f6;
+    --srv-success:#16a34a;
+    --srv-danger:#dc2626;
+    --srv-warning:#f59e0b;
+    --srv-purple:#7c3aed;
+    --srv-info:#0891b2;
+    --srv-dark:#111827;
+  }
+
+  .srv-shell{
+    color:var(--srv-text);
+  }
+
+  .hero-card{
+    border:0;
+    border-radius:24px;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.03)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    box-shadow:0 12px 34px rgba(15,23,42,.07);
+    padding:1.15rem 1.15rem 1.05rem;
+    margin-bottom:1rem;
+  }
+
+  .hero-title{
+    font-size:1.15rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    margin:0;
+  }
+
+  .hero-sub{
+    font-size:.78rem;
+    color:var(--srv-muted);
+    margin-top:.18rem;
+  }
+
+  .hero-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    padding:.4rem .78rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:700;
+    background:rgba(37,99,235,.09);
+    color:var(--srv-primary);
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .hero-actions{
+    display:flex;
+    gap:.65rem;
+    flex-wrap:wrap;
+  }
+
+  .hero-btn{
+    min-width:145px;
+    height:46px;
+    border:none;
+    border-radius:16px;
+    padding:0 1rem;
+    font-size:.82rem;
+    font-weight:800;
+    color:#fff;
+    background:linear-gradient(135deg,var(--srv-primary),var(--srv-primary-2));
+    box-shadow:0 10px 24px rgba(37,99,235,.24);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    text-decoration:none;
+  }
+
+  .hero-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .hero-btn-outline{
+    min-width:145px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #dbe4f0;
+    background:#fff;
+    color:#334155;
+    font-size:.82rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+  }
+
+  .hero-btn-outline:hover{
+    color:#0f172a;
+    background:#f8fafc;
+  }
+
+  .filter-card{
+    border:0;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffff,#fbfcff);
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
+    padding:1rem;
+    margin-bottom:1rem;
+  }
+
+  .filter-main-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap:.9rem;
+    align-items:end;
+  }
+
+  .filter-label{
+    font-size:.72rem;
+    font-weight:800;
+    color:#64748b;
+    margin-bottom:.38rem;
+    letter-spacing:.02em;
+  }
+
+  .filter-control{
+    height:44px;
+    border-radius:16px;
+    border:1px solid var(--srv-line);
+    font-size:.8rem;
+    padding:.55rem .9rem;
+    box-shadow:none !important;
+    background:#fff;
+  }
+
+  .filter-control:focus{
+    border-color:rgba(37,99,235,.35);
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.10) !important;
+  }
+
+  .filter-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:.8rem;
+    margin-top:1rem;
+    padding-top:1rem;
+    border-top:1px solid var(--srv-line-soft);
+  }
+
+  .btn-filter-main{
+    min-width:132px;
+    height:46px;
+    border:none;
+    border-radius:16px;
+    padding:0 1.1rem;
+    font-size:.82rem;
+    font-weight:800;
+    color:#fff;
+    background:linear-gradient(135deg,var(--srv-primary),var(--srv-primary-2));
+    box-shadow:0 10px 24px rgba(37,99,235,.24);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    transition:.18s ease;
+  }
+
+  .btn-filter-main:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .quick-filter{
+    min-width:118px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #dbe4f0;
+    background:#eef2ff;
+    color:#334155;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 1rem;
+  }
+
+  .quick-filter:hover{
+    background:#e0e7ff;
+    color:#1e293b;
+  }
+
+  .quick-reset{
+    min-width:100px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #e2e8f0;
+    background:#fff;
+    color:#475569;
+    font-size:.8rem;
+    font-weight:800;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 .95rem;
+  }
+
+  .stat-card{
+    border:0;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 10px 26px rgba(15,23,42,.06);
+    height:100%;
+    transition:.2s ease;
+    overflow:hidden;
+  }
+
+  .stat-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 16px 34px rgba(15,23,42,.09);
+  }
+
+  .stat-card .card-body{
+    padding:1rem;
+  }
+
+  .stat-card-feature{
+    border:0;
+    border-radius:22px;
+    background:
+      linear-gradient(135deg, rgba(8,145,178,.10), rgba(37,99,235,.06)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    box-shadow:0 12px 30px rgba(15,23,42,.08);
+    height:100%;
+    overflow:hidden;
+  }
+
+  .stat-card-feature .card-body{
+    padding:1rem;
+  }
+
+  .stat-icon{
+    width:52px;
+    height:52px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.15rem;
+    flex-shrink:0;
+  }
+
+  .bg-soft-success{ background:rgba(22,163,74,.12); color:var(--srv-success); }
+  .bg-soft-primary{ background:rgba(37,99,235,.12); color:var(--srv-primary); }
+  .bg-soft-danger{ background:rgba(220,38,38,.12); color:var(--srv-danger); }
+  .bg-soft-warning{ background:rgba(245,158,11,.16); color:#b45309; }
+  .bg-soft-purple{ background:rgba(124,58,237,.13); color:var(--srv-purple); }
+  .bg-soft-info{ background:rgba(8,145,178,.13); color:var(--srv-info); }
+  .bg-soft-dark{ background:rgba(17,24,39,.10); color:var(--srv-dark); }
+
+  .stat-title{
+    font-size:.78rem;
+    color:var(--srv-muted);
+    font-weight:700;
+    margin-bottom:.2rem;
+  }
+
+  .stat-amount{
+    font-size:1.32rem;
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-.02em;
+  }
+
+  .stat-note{
+    font-size:.72rem;
+    color:var(--srv-muted);
+  }
+
+  .formula-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.42rem .72rem;
+    border-radius:999px;
+    background:rgba(8,145,178,.10);
+    color:#0f766e;
+    font-size:.72rem;
+    font-weight:800;
+    border:1px solid rgba(8,145,178,.14);
+    margin-top:.65rem;
+  }
+
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:.8rem;
+  }
+
+  .mini-tile{
+    border-radius:18px;
+    padding:.95rem;
+    color:#fff;
+  }
+
+  .mini-tile small{
+    display:block;
+    opacity:.85;
+    font-size:.72rem;
+  }
+
+  .mini-tile strong{
+    display:block;
+    font-size:1.45rem;
+    line-height:1.1;
+    margin-top:.15rem;
+  }
+
+  .mini-dark{ background:linear-gradient(135deg,#111827,#1f2937); }
+  .mini-warn{ background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+  .mini-info{ background:linear-gradient(135deg,#0891b2,#06b6d4); }
+
+  .section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.8rem;
+    margin:1.2rem 0 .7rem;
+  }
+
+  .section-title{
+    margin:0;
+    font-size:.95rem;
+    font-weight:800;
+    letter-spacing:-.01em;
+  }
+
+  .chart-card,
+  .list-card{
+    border:0;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 10px 26px rgba(15,23,42,.06);
+    height:100%;
+  }
+
+  .chart-card .card-body,
+  .list-card .card-body{
+    padding:1rem;
+  }
+
+  .chart-title{
+    font-size:.86rem;
+    font-weight:800;
+    margin-bottom:.15rem;
+  }
+
+  .chart-sub{
+    font-size:.72rem;
+    color:var(--srv-muted);
+    margin-bottom:.9rem;
+  }
+
+  .chart-box{
+    position:relative;
+    height:290px;
+  }
+
+  .service-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    padding:.9rem 0;
+    border-bottom:1px solid #eef2f7;
+  }
+
+  .service-item:last-child{
+    border-bottom:0;
+  }
+
+  .service-name{
+    font-size:.84rem;
+    font-weight:700;
+    margin:0 0 .12rem;
+  }
+
+  .service-meta{
+    font-size:.72rem;
+    color:var(--srv-muted);
+  }
+
+  .amount-badge{
+    border-radius:999px;
+    padding:.35rem .72rem;
+    font-size:.74rem;
+    font-weight:700;
+    background:rgba(37,99,235,.08);
+    color:#1d4ed8;
+  }
+
+  .table thead th{
+    font-size:.75rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    border-bottom:1px solid #e5e7eb;
+  }
+
+  .table tbody td{
+    font-size:.82rem;
+    vertical-align:middle;
+  }
+
+  @media (max-width: 992px){
+    .filter-main-grid{
+      grid-template-columns:1fr;
+    }
+    .mini-grid{
+      grid-template-columns:1fr;
+    }
+    .chart-box{
+      height:250px;
+    }
+  }
+</style>
+
+<div class="container-fluid py-3 srv-shell">
+
+  <div class="hero-card animate__animated animate__fadeInDown">
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
+      <div>
+        <h4 class="hero-title">Services Dashboard</h4>
+        <div class="hero-sub">
+          Compressor Machine • Welding Machine
+          {% if selected_branch_obj %} • <strong>{{ selected_branch_obj.name }}</strong>{% endif %}
+        </div>
+
+        <div class="mt-2 d-flex flex-wrap gap-2">
+          <span class="hero-chip">
+            <i class="fa-solid fa-calendar-day"></i>
+            {{ range_label }}
+          </span>
+          {% if selected_branch_obj %}
+          <span class="hero-chip">
+            <i class="fa-solid fa-building"></i>
+            {{ selected_branch_obj.name }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="{% url 'services:service_create' %}" class="hero-btn">
+          <i class="fa-solid fa-plus"></i> Add Service
+        </a>
+        <a href="{% url 'services:service_list' %}" class="hero-btn-outline">
+          <i class="fa-solid fa-list"></i> Service List
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-card animate__animated animate__fadeInUp">
+    <form method="get">
+      <div class="filter-main-grid">
+        {% if request.user.profile.role != 'seller' %}
+        <div>
+          <label class="filter-label">Branch</label>
+          <select name="branch" class="form-select filter-control">
+            <option value="">All Branches</option>
+            {% for b in branches %}
+              <option value="{{ b.id }}" {% if selected_branch|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>
+                {{ b.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <div>
+          <label class="filter-label">From</label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="form-control filter-control">
+        </div>
+
+        <div>
+          <label class="filter-label">To</label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="form-control filter-control">
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-filter-main">
+          <i class="fa-solid fa-filter"></i>
+          Apply
+        </button>
+
+        <a class="quick-filter"
+           href="{% url 'services:dashboard' %}?date_from={{ today_str }}&date_to={{ today_str }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+          Today
+        </a>
+
+        <a class="quick-filter"
+           href="{% url 'services:dashboard' %}?date_from={{ last7_from }}&date_to={{ today_str }}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}">
+          Last 7 Days
+        </a>
+
+        <a class="quick-reset" href="{% url 'services:dashboard' %}">
+          Reset
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-info"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+          <div>
+            <div class="stat-title">Amount In Selected Period</div>
+            <div class="stat-amount">Tsh {{ period_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ range_label }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-success"><i class="fa-solid fa-calendar-day"></i></div>
+          <div>
+            <div class="stat-title">Today</div>
+            <div class="stat-amount">Tsh {{ today_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ today_count }} record{{ today_count|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-primary"><i class="fa-solid fa-calendar-days"></i></div>
+          <div>
+            <div class="stat-title">This Month</div>
+            <div class="stat-amount">Tsh {{ month_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ month_count }} record{{ month_count|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-purple"><i class="fa-solid fa-chart-column"></i></div>
+          <div>
+            <div class="stat-title">Overall Total</div>
+            <div class="stat-amount">Tsh {{ overall_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ overall_count }} record{{ overall_count|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6 animate__animated animate__fadeInUp">
+      <div class="card stat-card-feature">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div>
+              <div class="stat-title">Service Summary In Selected Period</div>
+              <div class="stat-amount">Tsh {{ period_total|floatformat:0|intcomma }}</div>
+              <div class="stat-note mt-2">
+                Compressor: Tsh {{ compressor_total|floatformat:0|intcomma }} •
+                Welding: Tsh {{ welding_total|floatformat:0|intcomma }}
+              </div>
+
+              <div class="formula-badge">
+                <i class="fa-solid fa-circle-info"></i>
+                Compressor + Welding = Period Total
+              </div>
+
+              <div class="stat-note mt-2">
+                Records in selected period: <b>{{ period_count }}</b>
+              </div>
+              <div class="stat-note mt-1">
+                Branch:
+                <b>{% if selected_branch_obj %}{{ selected_branch_obj.name }}{% else %}All Branches{% endif %}</b>
+              </div>
+            </div>
+            <div class="stat-icon bg-soft-info"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-warning"><i class="fa-solid fa-fan"></i></div>
+          <div>
+            <div class="stat-title">Compressor Machine</div>
+            <div class="stat-amount">Tsh {{ compressor_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ compressor_count }} record{{ compressor_count|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3 animate__animated animate__fadeInUp">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-soft-danger"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="stat-title">Welding Machine</div>
+            <div class="stat-amount">Tsh {{ welding_total|floatformat:0|intcomma }}</div>
+            <div class="stat-note">{{ welding_count }} record{{ welding_count|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mini-grid mb-4">
+    <div class="mini-tile mini-dark">
+      <small>Selected Period Records</small>
+      <strong>{{ period_count }}</strong>
+      <div class="small mt-1">Filtered service entries</div>
+    </div>
+
+    <div class="mini-tile mini-warn">
+      <small>Today Records</small>
+      <strong>{{ today_count }}</strong>
+      <div class="small mt-1">Today service entries</div>
+    </div>
+
+    <div class="mini-tile mini-info">
+      <small>This Month Records</small>
+      <strong>{{ month_count }}</strong>
+      <div class="small mt-1">Current month entries</div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h5 class="section-title">Charts & Trends</h5>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-xl-8">
+      <div class="card chart-card">
+        <div class="card-body">
+          <div class="chart-title">Last 7 Days Service Amount</div>
+          <div class="chart-sub">Daily trend for all services</div>
+          <div class="chart-box">
+            <canvas id="serviceTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card chart-card">
+        <div class="card-body">
+          <div class="chart-title">Service Mix</div>
+          <div class="chart-sub">Compressor vs Welding</div>
+          <div class="chart-box">
+            <canvas id="serviceMixChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h5 class="section-title">Recent Services</h5>
+    <a href="{% url 'services:service_list' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+      <i class="fa-solid fa-list me-1"></i> View All
+    </a>
+  </div>
+
+  <div class="card list-card mb-3">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Service</th>
+              <th>Amount</th>
+              <th>Branch</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Added By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in recent_services %}
+            <tr>
+              <td>{{ s.created_at|date:"d M Y H:i" }}</td>
+              <td>
+                <div class="service-name">{{ s.get_service_type_display }}</div>
+                <div class="service-meta">{{ s.notes|default:"No notes"|truncatechars:30 }}</div>
+              </td>
+              <td><span class="amount-badge">Tsh {{ s.amount|floatformat:0|intcomma }}</span></td>
+              <td>{{ s.branch.name|default:"-" }}</td>
+              <td>{{ s.customer_name|default:"-" }}</td>
+              <td>{{ s.customer_phone|default:"-" }}</td>
+              <td>{{ s.created_by.username|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">No service records found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const chartLabels = {{ chart_labels_json|safe }};
+  const chartValues = {{ chart_values_json|safe }};
+  const serviceMixLabels = {{ service_mix_labels_json|safe }};
+  const serviceMixValues = {{ service_mix_values_json|safe }};
+
+  new Chart(document.getElementById('serviceTrendChart'), {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [
+        {
+          label: 'Service Amount',
+          data: chartValues,
+          tension: 0.35,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('serviceMixChart'), {
+    type: 'doughnut',
+    data: {
+      labels: serviceMixLabels,
+      datasets: [{
+        data: serviceMixValues,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+</script>
+{% endblock %}

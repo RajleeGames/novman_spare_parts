@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Add Service{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --sf-bg:#f8fafc;
+    --sf-card:#ffffff;
+    --sf-line:#e5e7eb;
+    --sf-line-soft:#eef2f7;
+    --sf-text:#0f172a;
+    --sf-muted:#64748b;
+    --sf-primary:#2563eb;
+    --sf-primary-2:#3b82f6;
+    --sf-success:#16a34a;
+    --sf-warning:#f59e0b;
+    --sf-danger:#dc2626;
+    --sf-info:#0891b2;
+    --sf-purple:#7c3aed;
+  }
+
+  .sf-shell{
+    color:var(--sf-text);
+  }
+
+  .sf-hero{
+    border:0;
+    border-radius:24px;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08), rgba(59,130,246,.03)),
+      linear-gradient(180deg, #ffffff, #fbfdff);
+    box-shadow:0 12px 34px rgba(15,23,42,.07);
+    padding:1.15rem;
+    margin-bottom:1rem;
+  }
+
+  .sf-title{
+    font-size:1.12rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    margin:0;
+  }
+
+  .sf-sub{
+    font-size:.78rem;
+    color:var(--sf-muted);
+    margin-top:.18rem;
+  }
+
+  .sf-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    padding:.4rem .78rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:700;
+    background:rgba(37,99,235,.09);
+    color:var(--sf-primary);
+    border:1px solid rgba(37,99,235,.12);
+  }
+
+  .sf-top-btn{
+    min-width:150px;
+    height:46px;
+    border-radius:16px;
+    padding:0 1rem;
+    font-size:.82rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    text-decoration:none;
+    border:1px solid #dbe4f0;
+    background:#fff;
+    color:#334155;
+    box-shadow:0 8px 20px rgba(15,23,42,.05);
+  }
+
+  .sf-top-btn:hover{
+    color:#0f172a;
+    transform:translateY(-1px);
+  }
+
+  .sf-form-card{
+    border:0;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffff,#fbfcff);
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
+    overflow:hidden;
+  }
+
+  .sf-form-head{
+    padding:1rem 1rem .6rem;
+    border-bottom:1px solid var(--sf-line-soft);
+    background:linear-gradient(180deg, rgba(37,99,235,.03), rgba(255,255,255,0));
+  }
+
+  .sf-form-title{
+    font-size:.95rem;
+    font-weight:800;
+    margin:0;
+  }
+
+  .sf-form-sub{
+    margin-top:.22rem;
+    font-size:.75rem;
+    color:var(--sf-muted);
+  }
+
+  .sf-form-body{
+    padding:1rem;
+  }
+
+  .sf-label{
+    font-size:.74rem;
+    font-weight:800;
+    color:#64748b;
+    margin-bottom:.42rem;
+    letter-spacing:.02em;
+  }
+
+  .sf-help{
+    margin-top:.42rem;
+    font-size:.72rem;
+    color:var(--sf-muted);
+  }
+
+  .sf-form-card input,
+  .sf-form-card select,
+  .sf-form-card textarea{
+    width:100%;
+    border:1px solid var(--sf-line);
+    border-radius:16px;
+    background:#fff;
+    min-height:48px;
+    padding:.72rem .95rem;
+    font-size:.84rem;
+    color:var(--sf-text);
+    transition:.2s ease;
+    box-shadow:none !important;
+  }
+
+  .sf-form-card textarea{
+    min-height:120px;
+    resize:vertical;
+  }
+
+  .sf-form-card input:focus,
+  .sf-form-card select:focus,
+  .sf-form-card textarea:focus{
+    border-color:rgba(37,99,235,.35);
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.10) !important;
+    outline:none;
+  }
+
+  .sf-form-card input::placeholder,
+  .sf-form-card textarea::placeholder{
+    color:#94a3b8;
+  }
+
+  .sf-input-wrap{
+    position:relative;
+  }
+
+  .sf-icon{
+    position:absolute;
+    top:50%;
+    left:14px;
+    transform:translateY(-50%);
+    color:#94a3b8;
+    font-size:.86rem;
+    pointer-events:none;
+  }
+
+  .sf-input-wrap input{
+    padding-left:2.35rem !important;
+  }
+
+  .sf-grid-note{
+    border:1px dashed rgba(37,99,235,.18);
+    background:rgba(37,99,235,.04);
+    color:#1d4ed8;
+    border-radius:18px;
+    padding:.8rem .9rem;
+    font-size:.78rem;
+    display:flex;
+    align-items:flex-start;
+    gap:.65rem;
+  }
+
+  .sf-actions{
+    padding:1rem;
+    border-top:1px solid var(--sf-line-soft);
+    background:#fcfdff;
+  }
+
+  .sf-save-btn{
+    min-width:170px;
+    height:46px;
+    border:none;
+    border-radius:16px;
+    padding:0 1rem;
+    font-size:.82rem;
+    font-weight:800;
+    color:#fff;
+    background:linear-gradient(135deg,var(--sf-primary),var(--sf-primary-2));
+    box-shadow:0 10px 24px rgba(37,99,235,.24);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+  }
+
+  .sf-save-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sf-cancel-btn{
+    min-width:130px;
+    height:46px;
+    border-radius:16px;
+    border:1px solid #dbe4f0;
+    background:#fff;
+    color:#475569;
+    font-size:.82rem;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+  }
+
+  .sf-cancel-btn:hover{
+    color:#0f172a;
+    background:#f8fafc;
+  }
+
+  .sf-mini-stat{
+    border:0;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 10px 26px rgba(15,23,42,.06);
+    height:100%;
+  }
+
+  .sf-mini-stat .card-body{
+    padding:1rem;
+  }
+
+  .sf-mini-icon{
+    width:48px;
+    height:48px;
+    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.05rem;
+    flex-shrink:0;
+  }
+
+  .bg-soft-primary{ background:rgba(37,99,235,.12); color:var(--sf-primary); }
+  .bg-soft-success{ background:rgba(22,163,74,.12); color:var(--sf-success); }
+  .bg-soft-warning{ background:rgba(245,158,11,.16); color:#b45309; }
+
+  .sf-mini-title{
+    font-size:.76rem;
+    color:var(--sf-muted);
+    font-weight:700;
+    margin-bottom:.18rem;
+  }
+
+  .sf-mini-value{
+    font-size:1rem;
+    font-weight:800;
+    line-height:1.2;
+  }
+
+  .sf-mini-note{
+    font-size:.72rem;
+    color:var(--sf-muted);
+  }
+
+  @media(max-width:991.98px){
+    .sf-top-btn,
+    .sf-save-btn,
+    .sf-cancel-btn{
+      width:100%;
+    }
+  }
+</style>
+
+<div class="container-fluid py-3 sf-shell" style="max-width: 980px;">
+
+  <div class="sf-hero">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div>
+        <h4 class="sf-title">Add Service</h4>
+        <div class="sf-sub">Record compressor or welding machine service in a cleaner premium form</div>
+        <div class="mt-2 d-flex flex-wrap gap-2">
+          <span class="sf-chip"><i class="fa-solid fa-screwdriver-wrench"></i> New Service Record</span>
+          <span class="sf-chip"><i class="fa-solid fa-file-circle-plus"></i> Quick Entry</span>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'services:service_list' %}" class="sf-top-btn">
+          <i class="fa-solid fa-list"></i> Service List
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="card sf-mini-stat">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="sf-mini-icon bg-soft-primary">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div>
+            <div class="sf-mini-title">Branch</div>
+            <div class="sf-mini-value">
+              {% if request.user.profile.role == 'seller' %}
+                Auto Selected
+              {% else %}
+                Select Branch
+              {% endif %}
+            </div>
+            <div class="sf-mini-note">Based on your role access</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card sf-mini-stat">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="sf-mini-icon bg-soft-success">
+            <i class="fa-solid fa-gears"></i>
+          </div>
+          <div>
+            <div class="sf-mini-title">Service Type</div>
+            <div class="sf-mini-value">Compressor / Welding</div>
+            <div class="sf-mini-note">Choose the correct category</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card sf-mini-stat">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="sf-mini-icon bg-soft-warning">
+            <i class="fa-solid fa-money-bill-wave"></i>
+          </div>
+          <div>
+            <div class="sf-mini-title">Amount</div>
+            <div class="sf-mini-value">Required</div>
+            <div class="sf-mini-note">Enter service charge clearly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sf-form-card">
+    <div class="sf-form-head">
+      <h5 class="sf-form-title">Service Details</h5>
+      <div class="sf-form-sub">Fill in the service information below and save the record</div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="sf-form-body">
+        <div class="sf-grid-note mb-3">
+          <i class="fa-solid fa-circle-info mt-1"></i>
+          <div>
+            Fill all important details correctly. Customer name, phone and notes help you track service history better later.
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="sf-label">Branch</label>
+            {{ form.branch }}
+            {% if request.user.profile.role == 'seller' %}
+              <div class="sf-help">Your branch is used automatically.</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="sf-label">Service Type</label>
+            {{ form.service_type }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="sf-label">Amount</label>
+            <div class="sf-input-wrap">
+              <span class="sf-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
+              {{ form.amount }}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="sf-label">Customer Name</label>
+            <div class="sf-input-wrap">
+              <span class="sf-icon"><i class="fa-solid fa-user"></i></span>
+              {{ form.customer_name }}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="sf-label">Customer Phone</label>
+            <div class="sf-input-wrap">
+              <span class="sf-icon"><i class="fa-solid fa-phone"></i></span>
+              {{ form.customer_phone }}
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="sf-label">Notes</label>
+            {{ form.notes }}
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-actions d-flex flex-column flex-md-row gap-2">
+        <button type="submit" class="btn sf-save-btn">
+          <i class="fa-solid fa-save"></i> Save Service
+        </button>
+        <a href="{% url 'services:dashboard' %}" class="sf-cancel-btn">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

@@ -36,6 +36,8 @@ urlpatterns = [
 
     # Agrovet app
     path("agrovet/", include(("agrovet.urls", "agrovet"), namespace="agrovet")),
+    
+    path("services/", include("services.urls", namespace="services")),
 
     
 ]

@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
     'inventory',
-    
+    'services',
     'contacts',
     'sales',
     'users',

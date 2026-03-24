@@ -1,0 +1,876 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Service Reports{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --sr-bg:#f8fafc;
+    --sr-card:#ffffff;
+    --sr-line:#e2e8f0;
+    --sr-line-soft:#eef2f7;
+    --sr-text:#0f172a;
+    --sr-muted:#64748b;
+    --sr-primary:#2563eb;
+    --sr-primary-2:#3b82f6;
+    --sr-success:#16a34a;
+    --sr-warning:#f59e0b;
+    --sr-danger:#dc2626;
+    --sr-cyan:#0891b2;
+    --sr-purple:#7c3aed;
+    --sr-shadow:0 12px 30px rgba(15,23,42,.06);
+  }
+
+  .sr-shell{ color:var(--sr-text); }
+
+  .sr-hero{
+    border:0;
+    border-radius:26px;
+    background:
+      radial-gradient(900px 260px at 0% 0%, rgba(37,99,235,.10), transparent 45%),
+      linear-gradient(135deg, rgba(59,130,246,.04), rgba(255,255,255,.96));
+    box-shadow:0 14px 38px rgba(15,23,42,.08);
+    padding:1.2rem;
+    margin-bottom:1rem;
+  }
+
+  .sr-title{
+    margin:0;
+    font-size:1.15rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+  }
+
+  .sr-sub{
+    margin-top:.25rem;
+    color:var(--sr-muted);
+    font-size:.78rem;
+  }
+
+  .sr-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.45rem;
+    padding:.42rem .82rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:800;
+    border:1px solid rgba(37,99,235,.12);
+    background:rgba(37,99,235,.08);
+    color:var(--sr-primary);
+  }
+
+  .sr-filter-card,
+  .sr-table-card,
+  .sr-stat-card,
+  .sr-chart-card{
+    border:0;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffff,#fcfdff);
+    box-shadow:var(--sr-shadow);
+  }
+
+  .sr-filter-card .card-body,
+  .sr-table-card .card-body,
+  .sr-chart-card .card-body{
+    padding:1rem;
+  }
+
+  .sr-label{
+    font-size:.74rem;
+    font-weight:800;
+    color:#64748b;
+    margin-bottom:.42rem;
+    letter-spacing:.02em;
+  }
+
+  .sr-filter-card .form-control,
+  .sr-filter-card .form-select,
+  .select2-container--default .select2-selection--single{
+    min-height:48px;
+    border-radius:16px !important;
+    border:1px solid var(--sr-line) !important;
+    font-size:.84rem;
+    box-shadow:none !important;
+  }
+
+  .sr-filter-card .form-control,
+  .sr-filter-card .form-select{
+    padding:.72rem .92rem;
+  }
+
+  .sr-filter-card .form-control:focus,
+  .sr-filter-card .form-select:focus{
+    border-color:rgba(37,99,235,.35);
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.10) !important;
+  }
+
+  .select2-container{ width:100% !important; }
+
+  .select2-container .select2-selection--single{
+    display:flex !important;
+    align-items:center;
+    padding:.2rem .4rem;
+    background:#fff !important;
+  }
+
+  .select2-container .select2-selection__rendered{
+    line-height:1.4 !important;
+    color:var(--sr-text) !important;
+    font-size:.84rem;
+    padding-left:.35rem !important;
+  }
+
+  .select2-container .select2-selection__arrow{
+    height:46px !important;
+    right:8px !important;
+  }
+
+  .sr-run-btn{
+    min-height:48px;
+    border:none;
+    border-radius:16px;
+    font-size:.84rem;
+    font-weight:800;
+    background:linear-gradient(135deg,var(--sr-primary),var(--sr-primary-2));
+    color:#fff;
+    box-shadow:0 10px 24px rgba(37,99,235,.22);
+  }
+
+  .sr-run-btn:hover{
+    color:#fff;
+    transform:translateY(-1px);
+  }
+
+  .sr-stat-card{
+    overflow:hidden;
+    position:relative;
+    height:100%;
+  }
+
+  .sr-stat-card::before{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:4px;
+    border-radius:20px;
+  }
+
+  .sr-stat-card.primary::before{ background:var(--sr-primary); }
+  .sr-stat-card.success::before{ background:var(--sr-success); }
+  .sr-stat-card.warning::before{ background:var(--sr-warning); }
+  .sr-stat-card.purple::before{ background:var(--sr-purple); }
+
+  .sr-stat-card .card-body{ padding:1rem 1rem 1rem 1.1rem; }
+
+  .sr-stat-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:.75rem;
+  }
+
+  .sr-stat-label{
+    color:var(--sr-muted);
+    font-size:.76rem;
+    font-weight:700;
+    margin-bottom:.35rem;
+  }
+
+  .sr-stat-value{
+    margin:0;
+    font-size:1.2rem;
+    font-weight:800;
+    letter-spacing:-.02em;
+    line-height:1.1;
+  }
+
+  .sr-stat-icon{
+    width:46px;
+    height:46px;
+    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1rem;
+    flex-shrink:0;
+  }
+
+  .sr-bg-primary{ background:rgba(37,99,235,.10); color:var(--sr-primary); }
+  .sr-bg-success{ background:rgba(22,163,74,.11); color:var(--sr-success); }
+  .sr-bg-warning{ background:rgba(245,158,11,.15); color:#b45309; }
+  .sr-bg-purple{ background:rgba(124,58,237,.12); color:var(--sr-purple); }
+
+  .sr-stat-note{
+    margin-top:.42rem;
+    font-size:.72rem;
+    color:var(--sr-muted);
+  }
+
+  .sr-chart-card{
+    overflow:hidden;
+    height:100%;
+  }
+
+  .sr-chart-head{
+    padding:1rem 1rem .4rem;
+    border-bottom:1px solid var(--sr-line-soft);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    flex-wrap:wrap;
+  }
+
+  .sr-chart-title{
+    margin:0;
+    font-size:.92rem;
+    font-weight:800;
+  }
+
+  .sr-chart-sub{
+    margin-top:.15rem;
+    color:var(--sr-muted);
+    font-size:.74rem;
+  }
+
+  .sr-badge-soft{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.36rem .72rem;
+    border-radius:999px;
+    border:1px solid var(--sr-line);
+    background:#f8fafc;
+    color:#475569;
+    font-size:.72rem;
+    font-weight:800;
+  }
+
+  .sr-canvas-wrap{
+    position:relative;
+    height:320px;
+  }
+
+  .sr-table-head{
+    padding:1rem 1rem .4rem;
+    border-bottom:1px solid var(--sr-line-soft);
+    display:flex;
+    flex-wrap:wrap;
+    gap:.75rem;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .sr-table-title{
+    margin:0;
+    font-size:.96rem;
+    font-weight:800;
+  }
+
+  .sr-table-sub{
+    margin-top:.15rem;
+    color:var(--sr-muted);
+    font-size:.75rem;
+  }
+
+  .sr-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    border-radius:999px;
+    padding:.4rem .75rem;
+    font-size:.72rem;
+    font-weight:800;
+    background:#f8fafc;
+    border:1px solid var(--sr-line);
+    color:#475569;
+  }
+
+  .sr-table{
+    margin-bottom:0;
+  }
+
+  .sr-table thead th{
+    font-size:.74rem;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    border-bottom:1px solid var(--sr-line-soft);
+    border-top:0;
+    padding:.9rem .8rem;
+    white-space:nowrap;
+    background:#fcfdff;
+  }
+
+  .sr-table tbody td{
+    padding:.9rem .8rem;
+    border-color:var(--sr-line-soft);
+    font-size:.83rem;
+    color:var(--sr-text);
+    vertical-align:middle;
+  }
+
+  .sr-table tbody tr:hover{
+    background:rgba(37,99,235,.025);
+  }
+
+  .sr-type-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    padding:.38rem .7rem;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:800;
+    white-space:nowrap;
+  }
+
+  .sr-type-compressor{
+    background:rgba(22,163,74,.10);
+    color:var(--sr-success);
+  }
+
+  .sr-type-welding{
+    background:rgba(245,158,11,.14);
+    color:#b45309;
+  }
+
+  .sr-amount{
+    font-weight:800;
+    color:#0f172a;
+    white-space:nowrap;
+  }
+
+  .sr-muted{ color:var(--sr-muted); }
+
+  .sr-empty{
+    padding:2rem 1rem !important;
+    text-align:center;
+  }
+
+  .sr-empty-box{
+    max-width:340px;
+    margin:0 auto;
+  }
+
+  .sr-empty-icon{
+    width:62px;
+    height:62px;
+    border-radius:20px;
+    margin:0 auto .8rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.3rem;
+    background:rgba(148,163,184,.12);
+    color:#64748b;
+  }
+
+  @media (max-width: 991.98px){
+    .sr-run-btn{ width:100%; }
+    .sr-canvas-wrap{ height:280px; }
+  }
+</style>
+
+<div class="container-fluid py-3 sr-shell">
+
+  <div class="sr-hero">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div>
+        <h4 class="sr-title">Service Reports</h4>
+        <div class="sr-sub">Filter by date, branch and service type to track service income, activity and performance trends</div>
+
+        <div class="mt-2 d-flex flex-wrap gap-2">
+          <span class="sr-chip"><i class="fa-solid fa-chart-line"></i> Reports Overview</span>
+          <span class="sr-chip"><i class="fa-solid fa-chart-pie"></i> Smart Charts</span>
+          <span class="sr-chip"><i class="fa-solid fa-filter"></i> Advanced Filters</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="get" class="card sr-filter-card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        {% if request.user.profile.role != 'seller' %}
+        <div class="col-md-3">
+          <label class="sr-label">Branch</label>
+          <select name="branch" class="form-select select2">
+            <option value="">All Branches</option>
+            {% for b in branches %}
+              <option value="{{ b.id }}" {% if selected_branch and selected_branch.id == b.id %}selected{% endif %}>{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <div class="col-md-2">
+          <label class="sr-label">From</label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="form-control">
+        </div>
+
+        <div class="col-md-2">
+          <label class="sr-label">To</label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="form-control">
+        </div>
+
+        <div class="col-md-3">
+          <label class="sr-label">Service Type</label>
+          <select name="service_type" class="form-select">
+            <option value="">All Types</option>
+            {% for value, label in service_choices %}
+              <option value="{{ value }}" {% if service_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <button class="btn sr-run-btn w-100">
+            <i class="fa-solid fa-magnifying-glass me-1"></i> Run Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card sr-stat-card primary">
+        <div class="card-body">
+          <div class="sr-stat-top">
+            <div>
+              <div class="sr-stat-label">Total Records</div>
+              <h4 class="sr-stat-value">{{ total_count }}</h4>
+              <div class="sr-stat-note">All matching service entries</div>
+            </div>
+            <div class="sr-stat-icon sr-bg-primary">
+              <i class="fa-solid fa-file-lines"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card sr-stat-card success">
+        <div class="card-body">
+          <div class="sr-stat-top">
+            <div>
+              <div class="sr-stat-label">Total Amount</div>
+              <h4 class="sr-stat-value">Tsh {{ total_amount|floatformat:0|intcomma }}</h4>
+              <div class="sr-stat-note">Combined report total</div>
+            </div>
+            <div class="sr-stat-icon sr-bg-success">
+              <i class="fa-solid fa-coins"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card sr-stat-card warning">
+        <div class="card-body">
+          <div class="sr-stat-top">
+            <div>
+              <div class="sr-stat-label">Compressor</div>
+              <h4 class="sr-stat-value">Tsh {{ compressor_total|floatformat:0|intcomma }}</h4>
+              <div class="sr-stat-note">Compressor service amount</div>
+            </div>
+            <div class="sr-stat-icon sr-bg-warning">
+              <i class="fa-solid fa-fan"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card sr-stat-card purple">
+        <div class="card-body">
+          <div class="sr-stat-top">
+            <div>
+              <div class="sr-stat-label">Welding</div>
+              <h4 class="sr-stat-value">Tsh {{ welding_total|floatformat:0|intcomma }}</h4>
+              <div class="sr-stat-note">Welding service amount</div>
+            </div>
+            <div class="sr-stat-icon sr-bg-purple">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card sr-chart-card">
+        <div class="sr-chart-head">
+          <div>
+            <h5 class="sr-chart-title">Daily Revenue Trend</h5>
+            <div class="sr-chart-sub">Amount collected per day for the filtered report</div>
+          </div>
+          <span class="sr-badge-soft"><i class="fa-solid fa-chart-line"></i> Revenue</span>
+        </div>
+        <div class="card-body">
+          <div class="sr-canvas-wrap">
+            <canvas id="dailyRevenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card sr-chart-card">
+        <div class="sr-chart-head">
+          <div>
+            <h5 class="sr-chart-title">Service Type Split</h5>
+            <div class="sr-chart-sub">Compressor vs welding amount share</div>
+          </div>
+          <span class="sr-badge-soft"><i class="fa-solid fa-chart-pie"></i> Split</span>
+        </div>
+        <div class="card-body">
+          <div class="sr-canvas-wrap">
+            <canvas id="serviceSplitChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card sr-chart-card">
+        <div class="sr-chart-head">
+          <div>
+            <h5 class="sr-chart-title">Branch Performance</h5>
+            <div class="sr-chart-sub">Total amount by branch</div>
+          </div>
+          <span class="sr-badge-soft"><i class="fa-solid fa-building"></i> Branches</span>
+        </div>
+        <div class="card-body">
+          <div class="sr-canvas-wrap">
+            <canvas id="branchPerformanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card sr-chart-card">
+        <div class="sr-chart-head">
+          <div>
+            <h5 class="sr-chart-title">Last 7 Days Activity</h5>
+            <div class="sr-chart-sub">Quick recent trend for services recorded</div>
+          </div>
+          <span class="sr-badge-soft"><i class="fa-solid fa-calendar-week"></i> 7 Days</span>
+        </div>
+        <div class="card-body">
+          <div class="sr-canvas-wrap">
+            <canvas id="last7DaysChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sr-table-card">
+    <div class="sr-table-head">
+      <div>
+        <h5 class="sr-table-title">Report Results</h5>
+        <div class="sr-table-sub">Detailed list of filtered service records</div>
+      </div>
+      <div class="sr-pill">
+        <i class="fa-solid fa-table"></i>
+        {{ total_count }} record{{ total_count|pluralize }}
+      </div>
+    </div>
+
+    <div class="card-body pt-3">
+      <div class="table-responsive">
+        <table class="table align-middle sr-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Service</th>
+              <th>Amount</th>
+              <th>Branch</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Added By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in services %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ s.created_at|date:"d M Y" }}</div>
+                <div class="small sr-muted">{{ s.created_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                <span class="sr-type-badge {% if s.service_type == 'compressor' %}sr-type-compressor{% else %}sr-type-welding{% endif %}">
+                  {% if s.service_type == 'compressor' %}
+                    <i class="fa-solid fa-fan"></i>
+                  {% else %}
+                    <i class="fa-solid fa-bolt"></i>
+                  {% endif %}
+                  {{ s.get_service_type_display }}
+                </span>
+              </td>
+              <td class="sr-amount">Tsh {{ s.amount|floatformat:0|intcomma }}</td>
+              <td>{{ s.branch.name|default:"-" }}</td>
+              <td>{{ s.customer_name|default:"-" }}</td>
+              <td>{{ s.customer_phone|default:"-" }}</td>
+              <td>{{ s.created_by.username|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="sr-empty">
+                <div class="sr-empty-box">
+                  <div class="sr-empty-icon">
+                    <i class="fa-solid fa-folder-open"></i>
+                  </div>
+                  <h6 class="mb-1 fw-bold">No report data found</h6>
+                  <div class="text-muted small">Try changing date range, branch or service type filters.</div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dailyLabels = {{ daily_labels_json|safe }};
+  const dailyAmounts = {{ daily_amounts_json|safe }};
+  const dailyCounts = {{ daily_counts_json|safe }};
+
+  const serviceTypeLabels = {{ service_type_labels_json|safe }};
+  const serviceTypeAmounts = {{ service_type_amounts_json|safe }};
+  const serviceTypeCounts = {{ service_type_counts_json|safe }};
+
+  const branchLabels = {{ branch_labels_json|safe }};
+  const branchAmounts = {{ branch_amounts_json|safe }};
+  const branchCounts = {{ branch_counts_json|safe }};
+
+  const last7Labels = {{ last7_labels_json|safe }};
+  const last7Amounts = {{ last7_amounts_json|safe }};
+  const last7Counts = {{ last7_counts_json|safe }};
+
+  const moneyFormat = (value) => {
+    try{
+      return 'Tsh ' + Number(value || 0).toLocaleString();
+    }catch(e){
+      return 'Tsh ' + value;
+    }
+  };
+
+  Chart.defaults.font.family = 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+  Chart.defaults.color = '#475569';
+  Chart.defaults.borderColor = 'rgba(148,163,184,.18)';
+
+  // Daily Revenue Trend
+  new Chart(document.getElementById('dailyRevenueChart'), {
+    type: 'line',
+    data: {
+      labels: dailyLabels,
+      datasets: [{
+        label: 'Amount',
+        data: dailyAmounts,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,.12)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context){
+              return ' ' + moneyFormat(context.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value){
+              return moneyFormat(value);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Service Split
+  new Chart(document.getElementById('serviceSplitChart'), {
+    type: 'doughnut',
+    data: {
+      labels: serviceTypeLabels,
+      datasets: [{
+        data: serviceTypeAmounts,
+        backgroundColor: ['#16a34a', '#f59e0b'],
+        borderColor: '#ffffff',
+        borderWidth: 4,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            boxWidth: 10
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context){
+              return `${context.label}: ${moneyFormat(context.raw)}`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Branch Performance
+  new Chart(document.getElementById('branchPerformanceChart'), {
+    type: 'bar',
+    data: {
+      labels: branchLabels,
+      datasets: [{
+        label: 'Amount',
+        data: branchAmounts,
+        backgroundColor: '#7c3aed',
+        borderRadius: 12,
+        borderSkipped: false,
+        maxBarThickness: 42
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context){
+              const count = branchCounts[context.dataIndex] || 0;
+              return [`Amount: ${moneyFormat(context.raw)}`, `Records: ${count}`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value){
+              return moneyFormat(value);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Last 7 Days Activity
+  new Chart(document.getElementById('last7DaysChart'), {
+    type: 'bar',
+    data: {
+      labels: last7Labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Amount',
+          data: last7Amounts,
+          backgroundColor: 'rgba(8,145,178,.75)',
+          borderRadius: 10,
+          borderSkipped: false,
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Records',
+          data: last7Counts,
+          borderColor: '#dc2626',
+          backgroundColor: '#dc2626',
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { usePointStyle: true, boxWidth: 10 }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context){
+              if(context.dataset.label === 'Amount'){
+                return `Amount: ${moneyFormat(context.raw)}`;
+              }
+              return `Records: ${context.raw}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          position: 'left',
+          ticks: {
+            callback: function(value){
+              return moneyFormat(value);
+            }
+          }
+        },
+        y1: {
+          beginAtZero: true,
+          position: 'right',
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}
